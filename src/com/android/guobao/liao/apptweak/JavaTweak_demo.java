@@ -1,10 +1,13 @@
 package com.android.guobao.liao.apptweak;
 
+import java.io.IOException;
+import android.util.Log;
+
 @SuppressWarnings("unused")
 public class JavaTweak_demo { //替换方法所属的类，类名必须有统一的前缀【com.android.guobao.liao.apptweak.JavaTweak_***】
     static protected void loadDexFile(ClassLoader loader, String dex) {
         //此函数内可以做一些初始化操作，比如加载native动态库，拦截android.jar包中的系统函数等等
-        //JavaTweakBridge.nativeLoadLib("libdemo.so");
+        JavaTweakBridge.writeToLogcat(Log.INFO, "----------------nativeLoadLib: 0x%x", JavaTweakBridge.nativeLoadLib("libdemo.so"));
 
         //下面这一步必须要调用!!!!!!!!!!!!!!!!
         //packageName参数为实际注入的apk对应的包名
@@ -14,7 +17,7 @@ public class JavaTweak_demo { //替换方法所属的类，类名必须有统一的前缀【com.andr
 
         JavaTweakBridge.hookJavaMethod("javax.net.ssl.SSLContext", "init");
         JavaTweakBridge.hookJavaMethod("javax.crypto.Cipher", "getInstance(java.lang.String)"); //static
-        JavaTweakBridge.hookJavaMethod("javax.crypto.spec.SecretKeySpec", "(byte[],java.lang.String)", "SecretKeySpec"); //constructor
+        JavaTweakBridge.hookJavaMethod("javax.crypto.spec.SecretKeySpec", "(byte[],java.lang.String)"); //constructor
     }
 
     static protected void defineJavaClass(Class<?> clazz) {
@@ -49,9 +52,10 @@ public class JavaTweak_demo { //替换方法所属的类，类名必须有统一的前缀【com.andr
         JavaTweakBridge.callOriginalMethod(thiz, km, tm, random);
     }
 
-    static private Object execute(Object thiz) {
+    static private Object execute(Object thiz) throws Exception {
         //JavaTweakBridge.writeToLogcat(Log.INFO, Log.getStackTraceString(new Throwable()));
-        return JavaTweakBridge.callOriginalMethod(thiz);
+        Object hr = JavaTweakBridge.callOriginalMethod(thiz);
+        return TweakUtil.returnWithException(hr, hr == null ? new IOException(thiz.toString()) : null);
     }
 
     static private void enqueue(Object thiz, Object callback) {
@@ -59,8 +63,9 @@ public class JavaTweak_demo { //替换方法所属的类，类名必须有统一的前缀【com.andr
         JavaTweakBridge.callOriginalMethod(thiz, callback);
     }
 
-    static private Object executing(Object thiz, Object target, Object request, Object context) {
+    static private Object executing(Object thiz, Object target, Object request, Object context) throws Exception {
         //JavaTweakBridge.writeToLogcat(Log.INFO, Log.getStackTraceString(new Throwable()));
-        return JavaTweakBridge.callOriginalMethod(thiz, target, request, context);
+        Object hr = JavaTweakBridge.callOriginalMethod(thiz, target, request, context);
+        return TweakUtil.returnWithException(hr, hr == null ? new IOException(thiz.toString()) : null);
     }
 }

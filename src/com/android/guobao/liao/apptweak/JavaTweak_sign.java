@@ -1,9 +1,7 @@
 package com.android.guobao.liao.apptweak;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
-import android.content.res.AssetManager;
 import android.util.Base64;
 import android.util.Log;
 
@@ -121,7 +119,7 @@ public class JavaTweak_sign {
             JavaTweakBridge.writeToLogcat(Log.INFO, "SIGN_replace: asset@sign = (%s--->%s.twk)", fileName, fileName);
         }
         if (hr == null) {
-            throw new FileNotFoundException(fileName);
+            throw new IOException(fileName);
         }
         return hr;
     }
