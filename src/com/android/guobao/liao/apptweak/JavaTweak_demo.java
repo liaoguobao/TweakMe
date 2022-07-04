@@ -7,7 +7,7 @@ import android.util.Log;
 public class JavaTweak_demo { //替换方法所属的类，类名必须有统一的前缀【com.android.guobao.liao.apptweak.JavaTweak_***】
     static protected void loadDexFile(ClassLoader loader, String dex) {
         //此函数内可以做一些初始化操作，比如加载native动态库，拦截android.jar包中的系统函数等等
-        JavaTweakBridge.writeToLogcat(Log.INFO, "----------------nativeLoadLib: 0x%x", JavaTweakBridge.nativeLoadLib("libdemo.so"));
+        JavaTweakBridge.writeToLogcat(Log.INFO, "nativeLoadLib: libname = libsodemo.so, handle = 0x%x", JavaTweakBridge.nativeLoadLib("libsodemo.so"));
 
         //下面这一步必须要调用!!!!!!!!!!!!!!!!
         //packageName参数为实际注入的apk对应的包名

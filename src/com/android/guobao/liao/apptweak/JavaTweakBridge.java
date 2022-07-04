@@ -11,6 +11,14 @@ public class JavaTweakBridge {
     static private final ConcurrentHashMap<String, Method> backupMethods = new ConcurrentHashMap<String, Method>();
 
     /*
+     * nativeHookSymbol函数可以hook动态库中的符号（此符号可以是导出的也可是没导出的），为第三方so开发提供hook入口，专为native层hook函数而设计（通过反射调用），java层不可调用，支持armeabi、armeabi-v7a、arm64-v8a三种ABI，支持thumb、arm两种指令集。
+     * symbol: 需要hook的函数符号地址
+     * detour: 跳板方法的函数符号地址
+     * return: 成功返回原始方法的调用地址，失败返回0
+     */
+    static public native long nativeHookSymbol(long symbol, long detour);
+
+    /*
      * nativeLoadLib函数可以加载已经加载的so，也可以加载尚未加载的so，可以加载系统so，也可以加载非系统so，可以加载自己/data目录下的so，也可以加载/sdcard目录下的so
      * libname: 可以写全路径，也可以只写库名字，如果只写库名字，优先查找/sdcard/tweak/$PACKAGE目录，其次查找/data/data/$PACKAGE/lib目录，最后查找系统目录
      * return: 加载成功返回dlopen句柄，失败返回0
