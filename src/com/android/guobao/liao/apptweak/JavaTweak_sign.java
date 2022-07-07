@@ -22,25 +22,6 @@ public class JavaTweak_sign {
         JavaTweakBridge.hookJavaMethod("android.content.pm.Signature", "toByteArray()");
         JavaTweakBridge.hookJavaMethod("android.content.pm.Signature", "toChars()");
         JavaTweakBridge.hookJavaMethod("android.content.pm.Signature", "hashCode()");
-
-        JavaTweakBridge.hookJavaMethod("android.content.res.AssetManager", "open(java.lang.String,int)");
-        JavaTweakBridge.hookJavaMethod("android.content.res.AssetManager", "openNonAsset(int,java.lang.String,int)");
-        JavaTweakBridge.hookJavaMethod("android.content.res.AssetManager", "openXmlBlockAsset(int,java.lang.String)");
-    }
-
-    static private Object open(Object thiz, String fileName, int accessMode) throws IOException {
-        Object hr = JavaTweakBridge.nologOriginalMethod(thiz, fileName, accessMode);
-        return openAsset(thiz, 0, fileName, accessMode, hr);
-    }
-
-    static private Object openNonAsset(Object thiz, int cookie, String fileName, int accessMode) throws IOException {
-        Object hr = JavaTweakBridge.nologOriginalMethod(thiz, cookie, fileName, accessMode);
-        return openAsset(thiz, cookie, fileName, accessMode, hr);
-    }
-
-    static private Object openXmlBlockAsset(Object thiz, int cookie, String fileName) throws IOException {
-        Object hr = JavaTweakBridge.nologOriginalMethod(thiz, cookie, fileName);
-        return openAsset(thiz, cookie, fileName, 0, hr);
     }
 
     static private char[] toChars(Object thiz) {
@@ -102,25 +83,6 @@ public class JavaTweak_sign {
             str = String.valueOf(Arrays.hashCode(hr));
         }
         JavaTweakBridge.writeToLogcat(Log.INFO, hr != null ? String.format("SIGN_replace: %s: %s--->%s", packageName, o, str) : String.format("SIGN_null: %s: %s", packageName, o));
-        return hr;
-    }
-
-    static private Object openAsset(Object thiz, int cookie, String fileName, int accessMode, Object hr) throws IOException {
-        if (fileName != null && !fileName.startsWith("res/")) {
-            JavaTweakBridge.writeToLogcat(Log.INFO, "SIGN_asset: %s: %s", fileName, hr == null ? "error" : "ok");
-        }
-        Object twk = null;
-        if (hr != null && (fileName.endsWith(".SF") || fileName.endsWith(".MF") || fileName.endsWith(".RSA"))) {
-            twk = ReflectUtil.callObjectMethod(thiz, "openNonAsset(java.lang.String)", fileName + ".twk");
-        }
-        if (twk != null) {
-            ReflectUtil.callObjectMethod(hr, "close()");
-            hr = twk;
-            JavaTweakBridge.writeToLogcat(Log.INFO, "SIGN_replace: asset@sign = (%s--->%s.twk)", fileName, fileName);
-        }
-        if (hr == null) {
-            throw new IOException(fileName);
-        }
         return hr;
     }
 }
