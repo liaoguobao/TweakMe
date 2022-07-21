@@ -16,7 +16,7 @@ public class JavaTweakBridge {
      * detour: 跳板方法的函数符号地址
      * return: 成功返回原始方法的调用地址，失败返回0
      */
-    static public native long nativeHookSymbol(long symbol, long detour);
+    static private native long nativeHookSymbol(long symbol, long detour);
 
     /*
      * nativeLoadLib函数可以加载已经加载的so，也可以加载尚未加载的so，可以加载系统so，也可以加载非系统so，可以加载自己/data目录下的so，也可以加载/sdcard目录下的so
