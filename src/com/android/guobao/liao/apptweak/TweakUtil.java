@@ -1,5 +1,6 @@
 package com.android.guobao.liao.apptweak;
 
+import android.app.Application;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
@@ -15,6 +16,12 @@ public class TweakUtil {
         Class<?> clazz = ReflectUtil.classForName("android.app.ActivityThread", false, null);
         String s = (String) ReflectUtil.callClassMethod(clazz, "currentProcessName");
         return s;
+    }
+
+    static public Application currentApplication() {
+        Class<?> clazz = ReflectUtil.classForName("android.app.ActivityThread", false, null);
+        Application app = (Application) ReflectUtil.callClassMethod(clazz, "currentApplication");
+        return app;
     }
 
     static public Object returnWithException(Object hr, Exception e, boolean force) throws Exception {
@@ -46,13 +53,10 @@ public class TweakUtil {
         return pi;
     }
 
-    static public PackageInfo getPackageInfo() {
-        PackageInfo pi = getPackageInfo(0);
-        return pi;
-    }
-
-    static public ApplicationInfo getApplicationInfo() {
-        PackageInfo pi = getPackageInfo();
-        return pi.applicationInfo;
+    static public ApplicationInfo getApplicationInfo(int flags) {
+        Context sc = getSystemContext();
+        Object pm = ReflectUtil.callObjectMethod(sc, "getPackageManager");
+        ApplicationInfo ai = (ApplicationInfo) ReflectUtil.callObjectMethod(pm, "getApplicationInfo(java.lang.String,int)", sc.getPackageName(), flags);
+        return ai;
     }
 }

@@ -6,6 +6,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import android.util.Log;
 
 public class JavaTweakBridge {
+    static public final int PLUGIN_FLAG_DISABLE_OPENAT = 0x00000001;
+    static public final int PLUGIN_FLAG_DISABLE_SYSCALL = 0x00000002;
+
+    static private/*final*/int pluginFlags = 0;
+
     static private final String hookClassPrefix = JavaTweakBridge.class.getPackage().getName() + ".JavaTweak_";
 
     static private final ConcurrentHashMap<String, Method> backupMethods = new ConcurrentHashMap<String, Method>();
@@ -200,5 +205,9 @@ public class JavaTweakBridge {
 
         log += String.format("\treturn = %s->%s\r\n}\r\n", type.getName(), byteArr != null ? byteArr : (objArr != null ? objArr : hr));
         return log;
+    }
+
+    static public void setPluginFlags(int flags) {
+        pluginFlags = flags;
     }
 }
