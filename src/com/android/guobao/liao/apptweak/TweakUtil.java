@@ -1,11 +1,24 @@
 package com.android.guobao.liao.apptweak;
 
+import java.lang.ref.WeakReference;
+import java.util.Map;
 import android.app.Application;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 
 public class TweakUtil {
+    static public ClassLoader currentClassLoader() {
+        Class<?> clazz = ReflectUtil.classForName("android.app.ActivityThread", false, null);
+        Object activityThread = ReflectUtil.callClassMethod(clazz, "currentActivityThread");
+        Object packageName = ReflectUtil.callClassMethod(clazz, "currentPackageName");
+
+        Object mPackages = ReflectUtil.getObjectField(activityThread, "mPackages");
+        Object loadedApk = ((WeakReference<?>) ((Map<?, ?>) mPackages).get(packageName)).get();
+        Object mClassLoader = ReflectUtil.getObjectField(loadedApk, "mClassLoader");
+        return (ClassLoader) mClassLoader;
+    }
+
     static public String currentPackageName() {
         Class<?> clazz = ReflectUtil.classForName("android.app.ActivityThread", false, null);
         String s = (String) ReflectUtil.callClassMethod(clazz, "currentPackageName");

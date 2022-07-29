@@ -126,10 +126,13 @@ public class JavaTweakBridge {
                 int index = hook_method.indexOf('(');
                 hook_method_name = (index == -1 ? hook_method : hook_method.substring(0, index));
             }
+            if (backupMethods.containsKey(hook_method_name)) {
+                //writeToLogcat(Log.WARN, "hookJavaMethod: method<%s> hook repeat.", tweak_method);
+                return false;
+            }
             Method m = nativeHookMethod(tweak_class_, tweak_method, hook_class_, hook_method);
             if (m == null) {
-                boolean hooked = backupMethods.containsKey(hook_method_name);
-                writeToLogcat(hooked ? Log.WARN : Log.ERROR, "hookJavaMethod: method<%s> hook %s.", tweak_method, hooked ? "repeat" : "error");
+                writeToLogcat(Log.ERROR, "hookJavaMethod: method<%s> hook error.", tweak_method);
                 return false;
             }
             backupMethods.put(hook_method_name, m);

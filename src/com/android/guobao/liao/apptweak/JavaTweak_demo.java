@@ -16,9 +16,10 @@ public class JavaTweak_demo { //替换方法所属的类，类名必须有统一的前缀【com.andr
         long handle = JavaTweakBridge.nativeLoadLib("libsodemo.so");
         JavaTweakBridge.writeToLogcat(Log.INFO, "nativeLoadLib: libname = libsodemo.so, handle = 0x%x", handle);
 
+        JavaTweakBridge.hookJavaMethod("android.app.ActivityThread", "performLaunchActivity");
         JavaTweakBridge.hookJavaMethod("javax.net.ssl.SSLContext", "init");
-        JavaTweakBridge.hookJavaMethod("javax.crypto.Cipher", "getInstance(java.lang.String)"); //static
-        JavaTweakBridge.hookJavaMethod("javax.crypto.spec.SecretKeySpec", "(byte[],java.lang.String)"); //constructor
+        //JavaTweakBridge.hookJavaMethod("javax.crypto.Cipher", "getInstance(java.lang.String)"); //static方法hook例子，日志比较多，默认不hook
+        //JavaTweakBridge.hookJavaMethod("javax.crypto.spec.SecretKeySpec", "(byte[],java.lang.String)"); //constructor方法hook例子，日志比较多，默认不hook
     }
 
     static protected void defineJavaClass(Class<?> clazz) {
@@ -39,6 +40,11 @@ public class JavaTweak_demo { //替换方法所属的类，类名必须有统一的前缀【com.andr
         if (name.equals("org.apache.http.impl.client.DefaultRequestDirector") || name.equals("org.apache.http.impl.client.DefaultHttpClient")) {
             JavaTweakBridge.hookJavaMethod(clazz.getClassLoader(), "org.apache.http.impl.client.DefaultRequestDirector", "execute(org.apache.http.HttpHost,org.apache.http.HttpRequest,org.apache.http.protocol.HttpContext)", "executing");
         }
+    }
+
+    static private Object performLaunchActivity(Object thiz, Object record, Object intent) {
+        JavaTweakBridge.writeToLogcat(Log.INFO, "currentClassLoader: %s", TweakUtil.currentClassLoader());
+        return JavaTweakBridge.callOriginalMethod(thiz, record, intent);
     }
 
     static private Object getInstance(String transformation) { //静态方法没有this参数
