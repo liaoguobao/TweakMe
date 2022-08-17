@@ -12,6 +12,7 @@ public class JavaTweak_demo { //替换方法所属的类，类名必须有统一的前缀【com.andr
         //JavaTweakBridge.setPluginFlags(JavaTweakBridge.PLUGIN_FLAG_DISABLE_SYSCALL);
         //JavaTweakBridge.setPluginFlags(JavaTweakBridge.PLUGIN_FLAG_DISABLE_OPENAT);
         //JavaTweakBridge.setPluginFlags(JavaTweakBridge.PLUGIN_FLAG_DISABLE_SYSCALL|JavaTweakBridge.PLUGIN_FLAG_DISABLE_OPENAT);
+        //JavaTweakBridge.setPluginFlags(JavaTweakBridge.PLUGIN_FLAG_DISABLE_THREAD);
 
         long handle = JavaTweakBridge.nativeLoadLib("libsodemo.so");
         JavaTweakBridge.writeToLogcat(Log.INFO, "nativeLoadLib: libname = libsodemo.so, handle = 0x%x", handle);

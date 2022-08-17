@@ -8,6 +8,7 @@ import android.util.Log;
 public class JavaTweakBridge {
     static public final int PLUGIN_FLAG_DISABLE_OPENAT = 0x00000001;
     static public final int PLUGIN_FLAG_DISABLE_SYSCALL = 0x00000002;
+    static public final int PLUGIN_FLAG_DISABLE_THREAD = 0x00000004;
 
     static private/*final*/int pluginFlags = 0;
 
