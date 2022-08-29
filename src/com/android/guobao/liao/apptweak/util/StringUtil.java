@@ -1,4 +1,4 @@
-package com.android.guobao.liao.apptweak;
+package com.android.guobao.liao.apptweak.util;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;

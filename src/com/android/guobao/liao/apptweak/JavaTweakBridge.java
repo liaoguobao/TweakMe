@@ -5,15 +5,16 @@ import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 import android.util.Log;
 
+import com.android.guobao.liao.apptweak.util.*;
+
 public class JavaTweakBridge {
     static public final int PLUGIN_FLAG_DISABLE_OPENAT = 0x00000001;
     static public final int PLUGIN_FLAG_DISABLE_SYSCALL = 0x00000002;
     static public final int PLUGIN_FLAG_DISABLE_THREAD = 0x00000004;
 
     static private/*final*/int pluginFlags = 0;
-
-    static private final String hookClassPrefix = JavaTweakBridge.class.getPackage().getName() + ".JavaTweak_";
-
+    static private final String pluginPackage = JavaTweakBridge.class.getPackage().getName() + "." + "plugin";
+    static private final String hookClassPrefix = pluginPackage + "." + "JavaTweak_";
     static private final ConcurrentHashMap<String, Method> backupMethods = new ConcurrentHashMap<String, Method>();
 
     /*

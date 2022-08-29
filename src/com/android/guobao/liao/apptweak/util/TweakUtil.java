@@ -1,4 +1,4 @@
-package com.android.guobao.liao.apptweak;
+package com.android.guobao.liao.apptweak.util;
 
 import java.lang.ref.WeakReference;
 import java.util.Map;
