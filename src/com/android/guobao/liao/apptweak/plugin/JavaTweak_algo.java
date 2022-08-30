@@ -16,7 +16,7 @@ import com.android.guobao.liao.apptweak.util.*;
 
 @SuppressWarnings("unused")
 public class JavaTweak_algo {
-    static public void loadDexFile(ClassLoader loader, String dex) {
+    static public void loadDexFile(String dex) {
         JavaTweakBridge.hookJavaMethod("java.security.MessageDigest", "update(byte[])");
         JavaTweakBridge.hookJavaMethod("java.security.MessageDigest", "update(java.nio.ByteBuffer)", "update1");
         JavaTweakBridge.hookJavaMethod("java.security.MessageDigest", "update(byte[],int,int)", "update3");

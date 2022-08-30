@@ -30,7 +30,7 @@ import com.android.guobao.liao.apptweak.util.*;
 
 @SuppressWarnings({ "unused" })
 public class JavaTweak_proxy {
-    static public void loadDexFile(ClassLoader loader, String dex) {
+    static public void loadDexFile(String dex) {
         JavaTweak_HttpHelper.proxyIsOk();
         JavaTweakBridge.hookJavaMethod("javax.net.ssl.SSLContext", "init");
     }

@@ -3,11 +3,15 @@ package com.android.guobao.liao.apptweak;
 import com.android.guobao.liao.apptweak.plugin.*;
 
 public class JavaTweak {
-    static protected void loadDexFile(ClassLoader loader, String dex) {
-        JavaTweak_config.loadDexFile(loader, dex);
-        //JavaTweak_proxy.loadDexFile(loader, dex);
-        JavaTweak_demo.loadDexFile(loader, dex);
-        //JavaTweak_algo.loadDexFile(loader, dex);
+    static protected void loadDexFile(String dex) {
+        JavaTweak_config.loadDexFile(dex);
+        //JavaTweak_proxy.loadDexFile(dex);
+        JavaTweak_demo.loadDexFile(dex);
+        //JavaTweak_algo.loadDexFile(dex);
+    }
+
+    static protected void defineClassLoader(ClassLoader loader) {
+        JavaTweak_demo.defineClassLoader(loader);
     }
 
     static protected void defineJavaClass(Class<?> clazz) {

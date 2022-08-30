@@ -8,7 +8,7 @@ import com.android.guobao.liao.apptweak.util.*;
 
 @SuppressWarnings("unused")
 public class JavaTweak_demo { //替换方法所属的类，类名必须有统一的前缀【com.android.guobao.liao.apptweak.plugin.JavaTweak_***】
-    static public void loadDexFile(ClassLoader loader, String dex) {
+    static public void loadDexFile(String dex) {
         //此函数内可以做一些初始化操作，比如加载native动态库，拦截系统类函数等等
         long handle = JavaTweakBridge.nativeLoadLib("libsodemo.so");
         JavaTweakBridge.writeToLogcat(Log.INFO, "nativeLoadLib: libname = libsodemo.so, handle = 0x%x", handle);
@@ -17,6 +17,11 @@ public class JavaTweak_demo { //替换方法所属的类，类名必须有统一的前缀【com.andr
         JavaTweakBridge.hookJavaMethod("javax.net.ssl.SSLContext", "init");
         //JavaTweakBridge.hookJavaMethod("javax.crypto.Cipher", "getInstance(java.lang.String)"); //static方法hook例子，日志比较多，默认不hook
         //JavaTweakBridge.hookJavaMethod("javax.crypto.spec.SecretKeySpec", "(byte[],java.lang.String)"); //constructor方法hook例子，日志比较多，默认不hook
+    }
+
+    static public void defineClassLoader(ClassLoader loader) {
+        //如果想hook的类在defineJavaClass中没有被回调，可以在此函数中hook
+        JavaTweakBridge.writeToLogcat(Log.INFO, "defineClassLoader: %s", loader);
     }
 
     static public void defineJavaClass(Class<?> clazz) {
@@ -40,7 +45,6 @@ public class JavaTweak_demo { //替换方法所属的类，类名必须有统一的前缀【com.andr
     }
 
     static private Object performLaunchActivity(Object thiz, Object record, Object intent) {
-        JavaTweakBridge.writeToLogcat(Log.INFO, "currentClassLoader: %s", TweakUtil.currentClassLoader());
         return JavaTweakBridge.callOriginalMethod(thiz, record, intent);
     }
 
