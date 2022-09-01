@@ -157,7 +157,7 @@ class JavaTweak_HttpHelper {
             Object target = ReflectUtil.newClassInstance(HttpHost, "(java.lang.String,int,java.lang.String)", uri.getHost(), uri.getPort(), uri.getScheme());
 
             Class<?> HttpRoute = ReflectUtil.classForName("org.apache.http.conn.routing.HttpRoute", false, client.getClass().getClassLoader());
-            Object route = ReflectUtil.newClassInstance(HttpRoute, "(org.apache.http.HttpHost,java.net.InetAddress,org.apache.http.HttpHost,boolean)", target, null, proxy, true);
+            Object route = ReflectUtil.newClassInstance(HttpRoute, "(org.apache.http.HttpHost,java.net.InetAddress,org.apache.http.HttpHost,boolean)", target, null, proxy, uri.getScheme() == "https");
 
             ReflectUtil.callObjectMethod(params, "setParameter", /*ConnRoutePNames.FORCED_ROUTE*/"http.route.forced-route", route); //这一步必须设置
             ReflectUtil.callObjectMethod(params, "setParameter", /*ConnRoutePNames.DEFAULT_PROXY*/"http.route.default-proxy", proxy); //这一步可以不设置
@@ -174,8 +174,8 @@ class JavaTweak_HttpHelper {
 
                 Object scheme = ReflectUtil.callObjectMethod(schemeRegistry, "get", "https");
                 Object factory = ReflectUtil.callObjectMethod(scheme, "getSocketFactory");
-                if (JavaTweak_SSLSocketFactory_apache.class.isInstance(factory)) {
-                    return;
+                if (scheme == null || JavaTweak_SSLSocketFactory_apache.class.isInstance(factory)) {
+                    return; //scheme为null代表走的http协议，可以直接返回
                 }
                 KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
                 trustStore.load(null, null);

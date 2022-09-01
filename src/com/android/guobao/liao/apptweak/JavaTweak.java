@@ -6,8 +6,9 @@ public class JavaTweak {
     static protected void loadDexFile(String dex) {
         JavaTweak_config.loadDexFile(dex);
         //JavaTweak_proxy.loadDexFile(dex);
-        JavaTweak_demo.loadDexFile(dex);
+        //JavaTweak_gadget.loadDexFile(dex);
         //JavaTweak_algo.loadDexFile(dex);
+        JavaTweak_demo.loadDexFile(dex);
     }
 
     static protected void defineClassLoader(ClassLoader loader) {

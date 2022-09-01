@@ -31,6 +31,12 @@ public class TweakUtil {
         return s;
     }
 
+    static public boolean isMainProcess() {
+        String n1 = currentPackageName();
+        String n2 = currentProcessName();
+        return n1.equals(n2);
+    }
+
     static public Application currentApplication() {
         Class<?> clazz = ReflectUtil.classForName("android.app.ActivityThread", false, null);
         Application app = (Application) ReflectUtil.callClassMethod(clazz, "currentApplication");
@@ -61,15 +67,17 @@ public class TweakUtil {
 
     static public PackageInfo getPackageInfo(int flags) {
         Context sc = getSystemContext();
+        String pn = currentPackageName();
         Object pm = ReflectUtil.callObjectMethod(sc, "getPackageManager");
-        PackageInfo pi = (PackageInfo) ReflectUtil.callObjectMethod(pm, "getPackageInfo(java.lang.String,int)", sc.getPackageName(), flags);
+        PackageInfo pi = (PackageInfo) ReflectUtil.callObjectMethod(pm, "getPackageInfo(java.lang.String,int)", pn, flags);
         return pi;
     }
 
     static public ApplicationInfo getApplicationInfo(int flags) {
         Context sc = getSystemContext();
+        String pn = currentPackageName();
         Object pm = ReflectUtil.callObjectMethod(sc, "getPackageManager");
-        ApplicationInfo ai = (ApplicationInfo) ReflectUtil.callObjectMethod(pm, "getApplicationInfo(java.lang.String,int)", sc.getPackageName(), flags);
+        ApplicationInfo ai = (ApplicationInfo) ReflectUtil.callObjectMethod(pm, "getApplicationInfo(java.lang.String,int)", pn, flags);
         return ai;
     }
 }

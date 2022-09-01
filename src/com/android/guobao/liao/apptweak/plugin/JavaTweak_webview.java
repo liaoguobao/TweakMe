@@ -37,7 +37,7 @@ public class JavaTweak_webview {
             return;
         }
         if (name.equals("com.alipay.mobile.nebulauc.impl.UCWebView")) { //阿里自己用的实现类（新）
-            JavaTweakBridge.hookJavaMethod(clazz, "(android.content.Context,com.alibaba.ariver.app.api.Page,com.alipay.mobile.nebulauc.impl.UCWebView$1)", "WebViewUC");
+            JavaTweakBridge.hookJavaMethod(clazz, "(android.content.Context,com.alipay.mobile.nebulauc.impl.UCWebView$1)", "WebViewUC");
             return;
         }
         if (name.equals("com.alipay.mobile.nebulauc.impl.UCWebViewClient")) { //阿里自己用的实现类（新）
@@ -92,9 +92,9 @@ public class JavaTweak_webview {
         ReflectUtil.callObjectMethod(handler, "proceed");
     }
 
-    static private void WebViewUC(Object thiz, Object context, Object page, Object listener) {
-        JavaTweakBridge.writeToLogcat(Log.INFO, "webview: WebViewUC: %s", page);
-        JavaTweakBridge.nologOriginalMethod(thiz, context, page, listener);
+    static private void WebViewUC(Object thiz, Object context, Object view) {
+        JavaTweakBridge.writeToLogcat(Log.INFO, "webview: WebViewUC: %s", view);
+        JavaTweakBridge.nologOriginalMethod(thiz, context, view);
         ReflectUtil.callClassMethod(thiz.getClass(), "setWebContentsDebuggingEnabled(boolean)", true);
     }
 
