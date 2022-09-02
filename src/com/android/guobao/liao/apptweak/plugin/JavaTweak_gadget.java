@@ -9,12 +9,17 @@ import com.android.guobao.liao.apptweak.JavaTweakBridge;
 import com.android.guobao.liao.apptweak.util.*;
 
 public class JavaTweak_gadget {
+    //本插件是为加载frida的libgadget.so而开发，gadget最好用魔改的去特征版本，否则加载后很可能被app检测到而引起闪退
+    //如果配置为监听默认端口27042,则直接用下面方式连接gadget
+    //frida -U gadget
+    //如果配置为监听自定义端口,则需要用下面方式连接gadget
+    //frida -H IP:PORT gadget
     static private final String GADGET_NAME = "libgadget-15.1.3-android-arm.so";
     //listen:  address, port, on_load
     //connect: address, port
     //script:           path
     //script-directory: path
-    static private final String GADGET_CONF = "{\"interaction\":{\"type\":\"listen\",\"address\":\"0.0.0.0\",\"port\":33026,\"path\":\"/sdcard/tweak/com.android.tweakme/hello.js\",\"on_load\":\"resume\"},\"teardown\":\"minimal\",\"runtime\":\"default\",\"code_signing\":\"optional\"}";
+    static private final String GADGET_CONF = "{\"interaction\":{\"type\":\"listen\",\"address\":\"0.0.0.0\",\"port\":27042,\"path\":\"/sdcard/tweak/$PACKAGE/frida.js\",\"on_load\":\"resume\"},\"teardown\":\"minimal\",\"runtime\":\"default\",\"code_signing\":\"optional\"}";
 
     static public void loadDexFile(String dex) {
         String pn = TweakUtil.currentPackageName();
