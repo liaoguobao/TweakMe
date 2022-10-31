@@ -2,15 +2,15 @@ package com.android.guobao.liao.apptweak;
 
 @SuppressWarnings("unused")
 public class JavaTweakCallback {
-    static private void loadDexFile(String dex) { //javatweak.dex±»¼ÓÔØÊ±»Øµ÷
+    static private void loadDexFile(String dex) { //javatweak.dexè¢«åŠ è½½æ—¶å›žè°ƒ
         JavaTweak.loadDexFile(dex);
     }
 
-    static private void defineClassLoader(ClassLoader loader) { //Àà¼ÓÔØÆ÷µÚÒ»´Î±»´´½¨Ê±»Øµ÷
+    static private void defineClassLoader(ClassLoader loader) { //ç±»åŠ è½½å™¨ç¬¬ä¸€æ¬¡è¢«åˆ›å»ºæ—¶å›žè°ƒ
         JavaTweak.defineClassLoader(loader);
     }
 
-    static private void defineJavaClass(Class<?> clazz) { //ÀàµÚÒ»´Î±»´´½¨Ê±»Øµ÷
+    static private void defineJavaClass(Class<?> clazz) { //ç±»ç¬¬ä¸€æ¬¡è¢«åˆ›å»ºæ—¶å›žè°ƒ
         JavaTweak.defineJavaClass(clazz);
     }
 }

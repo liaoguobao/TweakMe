@@ -16,7 +16,7 @@ extern "C" JNIEXPORT int JNI_OnLoad(JavaVM *vm, void *reserved)
 {
     TweakBridge_init(vm);
 
-    void *libart = TweakBridge_loadLib("libart.so"); //ÓÃdlopen·½Ê½»ñÈ¡¾ä±ú£¬ÔÚ¸ß°æ±¾ÖĞ»áÖ±½Ó·µ»Ønull£¬µÍ°æ±¾ÖĞ¼´Ê¹ÓĞÖµ·µ»Ø£¬Ò²»áÓĞnamespaceµÄÏŞÖÆ£¬µ¼ÖÂdlsymµ÷ÓÃ·µ»Ønull
+    void *libart = TweakBridge_loadLib("libart.so"); //ç”¨dlopenæ–¹å¼è·å–å¥æŸ„ï¼Œåœ¨é«˜ç‰ˆæœ¬ä¸­ä¼šç›´æ¥è¿”å›nullï¼Œä½ç‰ˆæœ¬ä¸­å³ä½¿æœ‰å€¼è¿”å›ï¼Œä¹Ÿä¼šæœ‰namespaceçš„é™åˆ¶ï¼Œå¯¼è‡´dlsymè°ƒç”¨è¿”å›null
     __android_log_print(ANDROID_LOG_INFO, ANDROID_LOG_TAG, "nativeLoadLib: libname = libart.so, handle = %p\r\n", libart);
 
     void *symbol = dlsym(libart, "_ZN3art15instrumentation15Instrumentation21UpdateMethodsCodeImplEPNS_9ArtMethodEPKv");
@@ -29,7 +29,7 @@ static void  new_ART_Instrumentation_UpdateMethodsCodeImpl (void *thiz, void *me
 {
     old_ART_Instrumentation_UpdateMethodsCodeImpl(thiz, method, quick_code);
 
-    //ÓĞĞ©¼Ó¹Ì»á½ûÖ¹__android_log_printº¯Êı´òÓ¡ÈÕÖ¾£¬Èç¹û·¢ÏÖ´ËÌõÈÕÖ¾Ã»ÓĞÊä³öÇë»»ÓÃJavaTweakBridge_writeToLogcatº¯Êı¡£
+    //æœ‰äº›åŠ å›ºä¼šç¦æ­¢__android_log_printå‡½æ•°æ‰“å°æ—¥å¿—ï¼Œå¦‚æœå‘ç°æ­¤æ¡æ—¥å¿—æ²¡æœ‰è¾“å‡ºè¯·æ¢ç”¨JavaTweakBridge_writeToLogcatå‡½æ•°ã€‚
     __android_log_print(ANDROID_LOG_INFO, ANDROID_LOG_TAG, "UpdateMethodsCodeImpl: thiz = %p, method = %p, quick_code = %p\r\n", thiz, method, quick_code);
     //TweakBridge_printLog(ANDROID_LOG_INFO, ANDROID_LOG_TAG, "UpdateMethodsCodeImpl: thiz = %p, method = %p, quick_code = %p\r\n", thiz, method, quick_code);
 }

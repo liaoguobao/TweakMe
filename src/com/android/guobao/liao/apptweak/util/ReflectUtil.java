@@ -14,6 +14,10 @@ public class ReflectUtil {
         }
     }
 
+    static public Class<?> classForName(String name) {
+        return classForName(name, true, null);
+    }
+
     static public Constructor<?> findClassConstructor(Class<?> clazz, String constructor) {
         //(java.lang.String,int,byte[])
         String decl = null;
@@ -89,9 +93,9 @@ public class ReflectUtil {
     static public Field findClassField(Class<?> clazz, String field, int index) {
         int pos = field.indexOf('.');
         boolean isname = (pos == -1);
-        String field_ = (pos == 0 ? field.substring(1) : field); //.int .byte[],Èç¹ûÊÇÄÚÖÃÀàĞÍ£¬Ç°ÃæÒ»¶¨Òª´øÒ»¸öµãºÅ£¬ÒÔ×öÇø·Ö
+        String field_ = (pos == 0 ? field.substring(1) : field); //.int .byte[],å¦‚æœæ˜¯å†…ç½®ç±»å‹ï¼Œå‰é¢ä¸€å®šè¦å¸¦ä¸€ä¸ªç‚¹å·ï¼Œä»¥åšåŒºåˆ†
 
-        if (!isname) { //Èç¹û´«ÈëµÄÊÇ×Ö¶ÎÀàĞÍ£¬Í¨¹ı±éÀú·½Ê½Ä£ºıÆ¥Åä
+        if (!isname) { //å¦‚æœä¼ å…¥çš„æ˜¯å­—æ®µç±»å‹ï¼Œé€šè¿‡éå†æ–¹å¼æ¨¡ç³ŠåŒ¹é…
             int index_ = 0;
             int spec = 0;
             String decl = null;
@@ -105,7 +109,7 @@ public class ReflectUtil {
                     return fs[i];
                 }
             }
-        } else { //Èç¹û´«ÈëµÄÊÇ×Ö¶ÎÃû³Æ£¬Ö±½Óµ÷ÓÃ·½·¨
+        } else { //å¦‚æœä¼ å…¥çš„æ˜¯å­—æ®µåç§°ï¼Œç›´æ¥è°ƒç”¨æ–¹æ³•
             try {
                 Field f = clazz.getDeclaredField(field);
                 return f;

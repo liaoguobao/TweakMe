@@ -31,8 +31,9 @@ import com.android.guobao.liao.apptweak.util.*;
 @SuppressWarnings({ "unused" })
 public class JavaTweak_proxy {
     static public void loadDexFile(String dex) {
-        JavaTweak_HttpHelper.proxyIsOk();
+        JavaTweak_ProxyHelper.proxyIsOk();
         JavaTweakBridge.hookJavaMethod("javax.net.ssl.SSLContext", "init");
+        JavaTweakBridge.hookJavaMethod("java.net.URL", "openConnection()");
     }
 
     static public void defineJavaClass(Class<?> clazz) {
@@ -47,7 +48,13 @@ public class JavaTweak_proxy {
 
     static private Object RetryAndFollowUpInterceptor(Object thiz, Object chain) throws Exception {
         //JavaTweakBridge.writeToLogcat(Log.INFO, Log.getStackTraceString(new Throwable()));
-        Object hr = JavaTweakBridge.nologOriginalMethod(JavaTweak_HttpHelper.modifyOkHttpClient(thiz), chain);
+        Object hr = JavaTweakBridge.nologOriginalMethod(JavaTweak_ProxyHelper.modifyOkHttpClient(thiz), chain);
+        return TweakUtil.returnWithException(hr, hr == null ? new IOException(thiz.toString()) : null);
+    }
+
+    static private Object openConnection(Object thiz) throws Exception {
+        JavaTweakBridge.writeToLogcat(Log.INFO, "proxy: url: %s", thiz);
+        Object hr = !JavaTweak_ProxyHelper.proxyIsOk() ? JavaTweakBridge.nologOriginalMethod(thiz) : ReflectUtil.callObjectMethod(thiz, "openConnection(java.net.Proxy)", JavaTweak_ProxyHelper.newProxy());
         return TweakUtil.returnWithException(hr, hr == null ? new IOException(thiz.toString()) : null);
     }
 
@@ -59,15 +66,15 @@ public class JavaTweak_proxy {
 
     static private Object execute(Object thiz, Object target, Object request, Object context) throws Exception {
         //JavaTweakBridge.writeToLogcat(Log.INFO, Log.getStackTraceString(new Throwable()));
-        Object hr = JavaTweakBridge.nologOriginalMethod(JavaTweak_HttpHelper.modifyApacheHttpClient(thiz, request), target, request, context);
+        Object hr = JavaTweakBridge.nologOriginalMethod(JavaTweak_ProxyHelper.modifyApacheHttpClient(thiz, request), target, request, context);
         return TweakUtil.returnWithException(hr, hr == null ? new IOException(thiz.toString()) : null);
     }
 }
 
 @SuppressWarnings({ "unchecked" })
-class JavaTweak_HttpHelper {
-    static final private String proxyhost = "10.108.3.195";
-    static final private int proxyport = 8888;
+class JavaTweak_ProxyHelper {
+    static private String proxyhost = "10.108.3.195|192.168.1.108"; //多个ip地址用|隔开
+    static private int proxyport = 8888;
     static private int proxyok = -1;
 
     static public void modifyCertificatePinner(Object client) {
@@ -125,23 +132,38 @@ class JavaTweak_HttpHelper {
         if (proxyok != -1) {
             return proxyok == 1;
         }
-        proxyok = -2;
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                JavaTweakBridge.writeToLogcat(Log.INFO, "proxy: proxyIsOk: begin: %s:%d", proxyhost, proxyport);
-                try {
-                    Socket s = new Socket(proxyhost, proxyport);
-                    proxyok = 1;
-                    s.close();
-                } catch (Exception e) {
-                    proxyok = 0;
-                    JavaTweakBridge.writeToLogcat(Log.INFO, "proxy: proxyIsOk: exception: %s:%d %s", proxyhost, proxyport, e);
+        proxyok = 0;
+        String[] hosts = proxyhost.split("\\|");
+
+        for (int i = 0; i < hosts.length && !hosts[i].equals(""); i++) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    String host = Thread.currentThread().getName();
+                    try {
+                        Socket s = new Socket(host, proxyport);
+                        s.close();
+                        JavaTweakBridge.writeToLogcat(Log.INFO, "proxy: route: %s@%d: ok", host, proxyport);
+
+                        proxyhost = host;
+                        proxyok = 1;
+                    } catch (Exception e) {
+                        JavaTweakBridge.writeToLogcat(Log.INFO, "proxy: route: %s@%d: %s", host, proxyport, e);
+                    }
                 }
-                JavaTweakBridge.writeToLogcat(Log.INFO, "proxy: proxyIsOk: end: %s:%d %s", proxyhost, proxyport, proxyok == 1 ? "ok" : "error");
-            }
-        }).start();
+            }, hosts[i]).start();
+        }
         return false;
+    }
+
+    static public Object newProxy() {
+        Class<?> Proxy = ReflectUtil.classForName("java.net.Proxy");
+        Class<?> Type = ReflectUtil.classForName("java.net.Proxy$Type");
+
+        Object http = ReflectUtil.getClassField(Type, "HTTP");
+        Object addr = new InetSocketAddress(proxyhost, proxyport);
+        Object proxy = ReflectUtil.newClassInstance(Proxy, "(java.net.Proxy$Type,java.net.SocketAddress)", http, addr);
+        return proxy;
     }
 
     static public void setHttpClientProxy(Object client, String hctype) {
@@ -159,10 +181,10 @@ class JavaTweak_HttpHelper {
             Class<?> HttpRoute = ReflectUtil.classForName("org.apache.http.conn.routing.HttpRoute", false, client.getClass().getClassLoader());
             Object route = ReflectUtil.newClassInstance(HttpRoute, "(org.apache.http.HttpHost,java.net.InetAddress,org.apache.http.HttpHost,boolean)", target, null, proxy, uri.getScheme() == "https");
 
-            ReflectUtil.callObjectMethod(params, "setParameter", /*ConnRoutePNames.FORCED_ROUTE*/"http.route.forced-route", route); //��һ����������
-            ReflectUtil.callObjectMethod(params, "setParameter", /*ConnRoutePNames.DEFAULT_PROXY*/"http.route.default-proxy", proxy); //��һ�����Բ�����
+            ReflectUtil.callObjectMethod(params, "setParameter", /*ConnRoutePNames.FORCED_ROUTE*/"http.route.forced-route", route); //这一步必须设置
+            ReflectUtil.callObjectMethod(params, "setParameter", /*ConnRoutePNames.DEFAULT_PROXY*/"http.route.default-proxy", proxy); //这一步可以不设置
         } else if (hctype.equals("OkHttpClient")) {
-            ReflectUtil.setObjectField(client, "java.net.Proxy", new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyhost, proxyport)));
+            ReflectUtil.setObjectField(client, "java.net.Proxy", newProxy());
         }
     }
 
@@ -175,7 +197,7 @@ class JavaTweak_HttpHelper {
                 Object scheme = ReflectUtil.callObjectMethod(schemeRegistry, "get", "https");
                 Object factory = ReflectUtil.callObjectMethod(scheme, "getSocketFactory");
                 if (scheme == null || JavaTweak_SSLSocketFactory_apache.class.isInstance(factory)) {
-                    return; //schemeΪnull�����ߵ�httpЭ�飬����ֱ�ӷ���
+                    return; //scheme为null代表走的http协议，可以直接返回
                 }
                 KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
                 trustStore.load(null, null);
@@ -195,9 +217,13 @@ class JavaTweak_HttpHelper {
                 ReflectUtil.setObjectField(thiz, "javax.net.ssl.SSLSocketFactory", sf);
                 JavaTweakBridge.writeToLogcat(Log.INFO, "proxy: factory: %s--->%s", factory, sf);
 
-                Class<?> CertificateChainCleaner = ReflectUtil.classForName("okhttp3.internal.tls.CertificateChainCleaner", true, thiz.getClass().getClassLoader());
-                Object ccc = ReflectUtil.callClassMethod(CertificateChainCleaner, "(javax.net.ssl.X509TrustManager)okhttp3.internal.tls.CertificateChainCleaner", new JavaTweak_X509TrustManager()); //get
+                Class<?> Cleaner = ReflectUtil.classForName("okhttp3.internal.tls.CertificateChainCleaner", true, thiz.getClass().getClassLoader());
+                Class<?> Companion = ReflectUtil.classForName("okhttp3.internal.tls.CertificateChainCleaner$Companion", true, thiz.getClass().getClassLoader()); //如果是4.x版本，这里应该找这个类的内部类，因为接下来调用的get方法被实现在了内部类中
+
                 Object xxx = ReflectUtil.getObjectField(thiz, "okhttp3.internal.tls.CertificateChainCleaner");
+                Object cmp = Companion != null ? ReflectUtil.getClassField(Cleaner, "okhttp3.internal.tls.CertificateChainCleaner$Companion") : xxx;
+                Object ccc = Companion != null ? ReflectUtil.callObjectMethod(cmp, "(javax.net.ssl.X509TrustManager)okhttp3.internal.tls.CertificateChainCleaner", new JavaTweak_X509TrustManager()) : ReflectUtil.callClassMethod(Cleaner, "(javax.net.ssl.X509TrustManager)okhttp3.internal.tls.CertificateChainCleaner", new JavaTweak_X509TrustManager()); //get
+
                 ReflectUtil.setObjectField(thiz, "okhttp3.internal.tls.CertificateChainCleaner", ccc);
                 JavaTweakBridge.writeToLogcat(Log.INFO, "proxy: chain: %s--->%s", xxx, ccc);
             }

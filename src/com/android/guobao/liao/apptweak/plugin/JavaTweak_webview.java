@@ -9,38 +9,38 @@ import com.android.guobao.liao.apptweak.util.*;
 public class JavaTweak_webview {
     static public void defineJavaClass(Class<?> clazz) {
         String name = clazz.getName();
-        if (name.equals("android.webkit.WebView")) { //¹È¸èä¯ÀÀÆ÷µÄÊµÏÖÀà
-            JavaTweakBridge.hookJavaMethod(clazz, "(android.content.Context,android.util.AttributeSet,int,int,java.util.Map,boolean)");
+        if (name.equals("android.webkit.WebView")) { //è°·æ­Œæµè§ˆå™¨çš„å®ç°ç±»
+            //JavaTweakBridge.hookJavaMethod(clazz, "(android.content.Context,android.util.AttributeSet,int,int,java.util.Map,boolean)");
             return;
         }
-        if (name.equals("android.webkit.WebViewClient")) { //¹È¸èä¯ÀÀÆ÷µÄÊµÏÖÀà
+        if (name.equals("android.webkit.WebViewClient")) { //è°·æ­Œæµè§ˆå™¨çš„å®ç°ç±»
             JavaTweakBridge.hookJavaMethod(clazz, "onReceivedError(android.webkit.WebView,int,java.lang.String,java.lang.String)");
             JavaTweakBridge.hookJavaMethod(clazz, "onReceivedSslError(android.webkit.WebView,android.webkit.SslErrorHandler,android.net.http.SslError)");
             return;
         }
-        if (name.equals("com.uc.webview.export.WebView")) { //°¢Àï¸øµÚÈı·½ÓÃµÄÊµÏÖÀà
-            JavaTweakBridge.hookJavaMethod(clazz, "(android.content.Context,android.util.AttributeSet,int,boolean,byte)", "WebViewAP");
+        if (name.equals("com.uc.webview.export.WebView")) { //é˜¿é‡Œç»™ç¬¬ä¸‰æ–¹ç”¨çš„å®ç°ç±»
+            //JavaTweakBridge.hookJavaMethod(clazz, "(android.content.Context,android.util.AttributeSet,int,boolean,byte)", "WebViewAP");
             return;
         }
-        if (name.equals("com.uc.webview.export.WebViewClient")) { //°¢Àï¸øµÚÈı·½ÓÃµÄÊµÏÖÀà
+        if (name.equals("com.uc.webview.export.WebViewClient")) { //é˜¿é‡Œç»™ç¬¬ä¸‰æ–¹ç”¨çš„å®ç°ç±»
             JavaTweakBridge.hookJavaMethod(clazz, "onReceivedError(com.uc.webview.export.WebView,int,java.lang.String,java.lang.String)", "onReceivedErrorAP");
             JavaTweakBridge.hookJavaMethod(clazz, "onReceivedSslError(com.uc.webview.export.WebView,com.uc.webview.export.SslErrorHandler,android.net.http.SslError)", "onReceivedSslErrorAP");
             return;
         }
-        if (name.equals("com.alipay.mobile.nebulacore.web.H5WebView")) { //°¢Àï×Ô¼ºÓÃµÄÊµÏÖÀà£¨¾É£©
-            JavaTweakBridge.hookJavaMethod(clazz, "(android.app.Activity,com.alipay.mobile.h5container.api.H5Page,android.os.Bundle,com.alipay.mobile.nebula.webview.APWebView,com.alipay.mobile.nebula.webview.APWebViewListener)", "WebViewH5");
+        if (name.equals("com.alipay.mobile.nebulacore.web.H5WebView")) { //é˜¿é‡Œè‡ªå·±ç”¨çš„å®ç°ç±»ï¼ˆæ—§ï¼‰
+            //JavaTweakBridge.hookJavaMethod(clazz, "(android.app.Activity,com.alipay.mobile.h5container.api.H5Page,android.os.Bundle,com.alipay.mobile.nebula.webview.APWebView,com.alipay.mobile.nebula.webview.APWebViewListener)", "WebViewH5");
             return;
         }
-        if (name.equals("com.alipay.mobile.nebulacore.web.H5WebViewClient")) { //°¢Àï×Ô¼ºÓÃµÄÊµÏÖÀà£¨¾É£©
+        if (name.equals("com.alipay.mobile.nebulacore.web.H5WebViewClient")) { //é˜¿é‡Œè‡ªå·±ç”¨çš„å®ç°ç±»ï¼ˆæ—§ï¼‰
             JavaTweakBridge.hookJavaMethod(clazz, "onReceivedError(com.alipay.mobile.nebula.webview.APWebView,int,java.lang.String,java.lang.String)", "onReceivedErrorH5");
             JavaTweakBridge.hookJavaMethod(clazz, "onReceivedSslError(com.alipay.mobile.nebula.webview.APWebView,com.alipay.mobile.nebula.webview.APSslErrorHandler,android.net.http.SslError)", "onReceivedSslErrorH5");
             return;
         }
-        if (name.equals("com.alipay.mobile.nebulauc.impl.UCWebView")) { //°¢Àï×Ô¼ºÓÃµÄÊµÏÖÀà£¨ĞÂ£©
-            JavaTweakBridge.hookJavaMethod(clazz, "(android.content.Context,com.alipay.mobile.nebulauc.impl.UCWebView$1)", "WebViewUC");
+        if (name.equals("com.alipay.mobile.nebulauc.impl.UCWebView")) { //é˜¿é‡Œè‡ªå·±ç”¨çš„å®ç°ç±»ï¼ˆæ–°ï¼‰
+            //JavaTweakBridge.hookJavaMethod(clazz, "(android.content.Context,com.alipay.mobile.nebulauc.impl.UCWebView$1)", "WebViewUC");
             return;
         }
-        if (name.equals("com.alipay.mobile.nebulauc.impl.UCWebViewClient")) { //°¢Àï×Ô¼ºÓÃµÄÊµÏÖÀà£¨ĞÂ£©
+        if (name.equals("com.alipay.mobile.nebulauc.impl.UCWebViewClient")) { //é˜¿é‡Œè‡ªå·±ç”¨çš„å®ç°ç±»ï¼ˆæ–°ï¼‰
             JavaTweakBridge.hookJavaMethod(clazz, "onReceivedError(com.uc.webview.export.WebView,int,java.lang.String,java.lang.String)", "onReceivedErrorUC");
             JavaTweakBridge.hookJavaMethod(clazz, "onReceivedSslError(com.uc.webview.export.WebView,com.uc.webview.export.SslErrorHandler,android.net.http.SslError)", "onReceivedSslErrorUC");
             return;

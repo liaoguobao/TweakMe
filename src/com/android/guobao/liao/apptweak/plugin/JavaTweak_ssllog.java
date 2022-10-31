@@ -34,7 +34,6 @@ class JavaTweak_LogHelper {
         head += headers.replaceAll("\n", "\r\n") + "\r\n";
         JavaTweakBridge.writeToLogcat(Log.INFO, "OKHTTP_write: key = 0x%08X, headlen = %d, head = \r\n{\r\n%s\r\n}\r\n", thiz.hashCode(), head.length(), head);
 
-        boolean ishex = false;
         byte[] bodydata = null;
         if (body != null) {
             Class<?> Buffer = ReflectUtil.classForName("okio.Buffer", true, request.getClass().getClassLoader());
@@ -46,15 +45,11 @@ class JavaTweak_LogHelper {
             Object type = ReflectUtil.callObjectMethod(body, "()okhttp3.MediaType"); //contentType
             body = ReflectUtil.callClassMethod(body.getClass(), "(okhttp3.MediaType,byte[])okhttp3.RequestBody", type, bodydata); //create
             ReflectUtil.setObjectField(request, "okhttp3.RequestBody", body);
-
-            String ct = type.toString();
-            if (ZlibUtil.isZip(bodydata) || ct.startsWith("image/") || ct.startsWith("audio/") || ct.startsWith("video/") || ct.startsWith("text/") || ct.startsWith("application/json") || ct.startsWith("application/x-msdownload") || ct.startsWith("application/octet-stream")) {
-                ishex = true;
-            }
         }
         byte[] infdata = ZlibUtil.inflate(bodydata);
         bodydata = (infdata != null ? infdata : bodydata);
-        JavaTweakBridge.writeToLogcat(Log.INFO, "OKHTTP_write: key = 0x%08X, bodylen = %d, isgzip = %s, body = \r\n{\r\n%s\r\n}\r\n", thiz.hashCode(), bodydata == null ? 0 : bodydata.length, infdata != null, ishex ? new String(bodydata) : StringUtil.hexToVisible(bodydata));
+        bodydata = (bodydata != null ? bodydata : "".getBytes());
+        JavaTweakBridge.writeToLogcat(Log.INFO, "OKHTTP_write: key = 0x%08X, bodylen = %d, isgzip = %s, body = \r\n{\r\n%s\r\n}\r\n", thiz.hashCode(), bodydata == null ? 0 : bodydata.length, infdata != null, new String(bodydata));
         return request;
     }
 
@@ -70,7 +65,6 @@ class JavaTweak_LogHelper {
         head += headers.replaceAll("\n", "\r\n") + "\r\n";
         JavaTweakBridge.writeToLogcat(Log.INFO, "OKHTTP_read: key = 0x%08X, headlen = %d, head = \r\n{\r\n%s\r\n}\r\n", thiz.hashCode(), head.length(), head);
 
-        boolean ishex = false;
         byte[] bodydata = null;
         if (body != null) {
             Object source = ReflectUtil.callObjectMethod(body, "()okio.BufferedSource"); //source
@@ -82,15 +76,11 @@ class JavaTweak_LogHelper {
             Object type = ReflectUtil.callObjectMethod(body, "()okhttp3.MediaType"); //contentType
             body = ReflectUtil.callClassMethod(body.getClass(), "(okhttp3.MediaType,byte[])okhttp3.ResponseBody", type, bodydata); //create
             ReflectUtil.setObjectField(response, "okhttp3.ResponseBody", body); //body
-
-            String ct = type.toString();
-            if (ZlibUtil.isZip(bodydata) || ct.startsWith("image/") || ct.startsWith("audio/") || ct.startsWith("video/") || ct.startsWith("text/") || ct.startsWith("application/json") || ct.startsWith("application/x-msdownload") || ct.startsWith("application/octet-stream")) {
-                ishex = true;
-            }
         }
         byte[] infdata = ZlibUtil.inflate(bodydata);
         bodydata = (infdata != null ? infdata : bodydata);
-        JavaTweakBridge.writeToLogcat(Log.INFO, "OKHTTP_read: key = 0x%08X, bodylen = %d, isgzip = %s, body = \r\n{\r\n%s\r\n}\r\n", thiz.hashCode(), bodydata == null ? 0 : bodydata.length, infdata != null, ishex ? new String(bodydata) : StringUtil.hexToVisible(bodydata));
+        bodydata = (bodydata != null ? bodydata : "".getBytes());
+        JavaTweakBridge.writeToLogcat(Log.INFO, "OKHTTP_read: key = 0x%08X, bodylen = %d, isgzip = %s, body = \r\n{\r\n%s\r\n}\r\n", thiz.hashCode(), bodydata == null ? 0 : bodydata.length, infdata != null, new String(bodydata));
         return response;
     }
 }

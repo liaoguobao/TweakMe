@@ -12,7 +12,7 @@ public class StringUtil {
         byte[] str = new byte[hex.length << 1];
 
         for (int i = 0; i < hex.length; i++) {
-            int cb = hex[i] & 0xFF; //byte·¶Î§Îª[-128, 127]£¬Èç¹ûÒª±íÊ¾Îª[0, 255]£¬±ØĞëÒªÓÃintÀ´±íÊ¾£¬ÇÒÒªºÍ0xff½øĞĞÓë²Ù×÷ºóÔÙ¸³Öµ£¬·ñÔòÔÚ¸ºÊıÇé¿öÏÂºóĞø²é±í»á³öÏÖÊı×éÔ½½ç
+            int cb = hex[i] & 0xFF; //byteèŒƒå›´ä¸º[-128, 127]ï¼Œå¦‚æœè¦è¡¨ç¤ºä¸º[0, 255]ï¼Œå¿…é¡»è¦ç”¨intæ¥è¡¨ç¤ºï¼Œä¸”è¦å’Œ0xffè¿›è¡Œä¸æ“ä½œåå†èµ‹å€¼ï¼Œå¦åˆ™åœ¨è´Ÿæ•°æƒ…å†µä¸‹åç»­æŸ¥è¡¨ä¼šå‡ºç°æ•°ç»„è¶Šç•Œ
             str[(i << 1) + 0] = digit[cb >> 4];
             str[(i << 1) + 1] = digit[cb & 0x0F];
         }
@@ -69,7 +69,7 @@ public class StringUtil {
         byte[] str = new byte[hex.length * 3];
 
         for (int i = 0; i < hex.length; i++) {
-            int cb = hex[i] & 0xFF; //byte·¶Î§Îª[-128, 127]£¬Èç¹ûÒª±íÊ¾Îª[0, 255]£¬±ØĞëÒªÓÃintÀ´±íÊ¾£¬ÇÒÒªºÍ0xff½øĞĞÓë²Ù×÷ºóÔÙ¸³Öµ£¬·ñÔòÔÚ¸ºÊıÇé¿öÏÂºóĞø²é±í»á³öÏÖÊı×éÔ½½ç
+            int cb = hex[i] & 0xFF; //byteèŒƒå›´ä¸º[-128, 127]ï¼Œå¦‚æœè¦è¡¨ç¤ºä¸º[0, 255]ï¼Œå¿…é¡»è¦ç”¨intæ¥è¡¨ç¤ºï¼Œä¸”è¦å’Œ0xffè¿›è¡Œä¸æ“ä½œåå†èµ‹å€¼ï¼Œå¦åˆ™åœ¨è´Ÿæ•°æƒ…å†µä¸‹åç»­æŸ¥è¡¨ä¼šå‡ºç°æ•°ç»„è¶Šç•Œ
             if (cb > 0x20 && cb < 0x7F) {
                 str[len_++] = (byte) cb;
             } else {
@@ -140,5 +140,26 @@ public class StringUtil {
             buf.get(ba, 0, ba.length);
             return ba;
         }
+    }
+
+    static public String replaceAll(String str, String from, String to) {
+        if (str == null || from == null) {
+            return str;
+        }
+        if (str.equals("") || from.equals("")) {
+            return str;
+        }
+        if (to == null) {
+            to = "";
+        }
+        String hr = "";
+        int start = 0, index = 0;
+        while ((index = str.indexOf(from, start)) >= 0) {
+            hr += str.substring(start, index);
+            hr += to;
+            start = index + from.length();
+        }
+        hr += str.substring(start);
+        return hr;
     }
 }

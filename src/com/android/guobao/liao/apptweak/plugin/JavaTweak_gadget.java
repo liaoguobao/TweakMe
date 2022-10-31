@@ -9,10 +9,10 @@ import com.android.guobao.liao.apptweak.JavaTweakBridge;
 import com.android.guobao.liao.apptweak.util.*;
 
 public class JavaTweak_gadget {
-    //±¾²å¼şÊÇÎª¼ÓÔØfridaµÄlibgadget.so¶ø¿ª·¢£¬gadget×îºÃÓÃÄ§¸ÄµÄÈ¥ÌØÕ÷°æ±¾£¬·ñÔò¼ÓÔØºóºÜ¿ÉÄÜ±»app¼ì²âµ½¶øÒıÆğÉÁÍË
-    //Èç¹ûÅäÖÃÎª¼àÌıÄ¬ÈÏ¶Ë¿Ú27042,ÔòÖ±½ÓÓÃÏÂÃæ·½Ê½Á¬½Ógadget
+    //æœ¬æ’ä»¶æ˜¯ä¸ºåŠ è½½fridaçš„libgadget.soè€Œå¼€å‘ï¼Œgadgetæœ€å¥½ç”¨é­”æ”¹çš„å»ç‰¹å¾ç‰ˆæœ¬ï¼Œå¦åˆ™åŠ è½½åå¾ˆå¯èƒ½è¢«appæ£€æµ‹åˆ°è€Œå¼•èµ·é—ªé€€
+    //å¦‚æœé…ç½®ä¸ºç›‘å¬é»˜è®¤ç«¯å£27042,åˆ™ç›´æ¥ç”¨ä¸‹é¢æ–¹å¼è¿æ¥gadget
     //frida -U gadget
-    //Èç¹ûÅäÖÃÎª¼àÌı×Ô¶¨Òå¶Ë¿Ú,ÔòĞèÒªÓÃÏÂÃæ·½Ê½Á¬½Ógadget
+    //å¦‚æœé…ç½®ä¸ºç›‘å¬è‡ªå®šä¹‰ç«¯å£,åˆ™éœ€è¦ç”¨ä¸‹é¢æ–¹å¼è¿æ¥gadget
     //frida -H IP:PORT gadget
     static private final String GADGET_NAME = "libgadget-15.1.3-android-arm.so";
     //listen:  address, port, on_load
@@ -32,11 +32,11 @@ public class JavaTweak_gadget {
         String gadget = GADGET_NAME;
         if (gadget.indexOf('/') == -1) {
             if (new File(sddir + "/" + gadget).exists()) {
-                gadget = sddir + "/" + gadget; //ÔÚ /sdcard/tweak/$PACKAGE/Ä¿Â¼ÏÂÕÒµ½ÁË¶¯Ì¬¿â
+                gadget = sddir + "/" + gadget; //åœ¨ /sdcard/tweak/$PACKAGE/ç›®å½•ä¸‹æ‰¾åˆ°äº†åŠ¨æ€åº“
             } else if (new File(libdir + "/" + gadget).exists()) {
-                gadget = libdir + "/" + gadget; //ÔÚ /data/data/$PACKAGE/lib/Ä¿Â¼ÏÂÕÒµ½ÁË¶¯Ì¬¿â
+                gadget = libdir + "/" + gadget; //åœ¨ /data/data/$PACKAGE/lib/ç›®å½•ä¸‹æ‰¾åˆ°äº†åŠ¨æ€åº“
             } else if (new File(tweakdir + "/" + gadget).exists()) {
-                gadget = tweakdir + "/" + gadget; //ÔÚ /data/data/$PACKAGE/app_tweak/Ä¿Â¼ÏÂÕÒµ½ÁË¶¯Ì¬¿â
+                gadget = tweakdir + "/" + gadget; //åœ¨ /data/data/$PACKAGE/app_tweak/ç›®å½•ä¸‹æ‰¾åˆ°äº†åŠ¨æ€åº“
             }
         }
         if (!new File(gadget).exists()) {
@@ -50,13 +50,14 @@ public class JavaTweak_gadget {
         String copyto = tweakdir + gadget.substring(gadget.lastIndexOf('/'));
         if (gadget.indexOf("/app_tweak/") == -1 && TweakUtil.isMainProcess()) {
             if (new File(gadget).length() != new File(copyto).length()) {
-                FileUtil.copyFile(gadget, copyto); //libgadget.soÎÄ¼ş·Ç³£´ó£¬ÕâÀï¼òµ¥±È½ÏÒ»ÏÂÎÄ¼ş´óĞ¡£¬ÅĞ¶ÏÊÇ·ñĞèÒª¸²¸Ç
+                FileUtil.copyFile(gadget, copyto); //libgadget.soæ–‡ä»¶éå¸¸å¤§ï¼Œè¿™é‡Œç®€å•æ¯”è¾ƒä¸€ä¸‹æ–‡ä»¶å¤§å°ï¼Œåˆ¤æ–­æ˜¯å¦éœ€è¦è¦†ç›–
             }
         }
         gadget = copyto;
-        String conf = gadget.substring(0, gadget.length() - 3) + ".config" + ".so";
-        FileUtil.writeFile(conf, GADGET_CONF.getBytes()); //Ğ´ÅäÖÃÎÄ¼şµ½/data/data/$PACKAGE/app_tweak/Ä¿Â¼ÏÂ
-
+        if (TweakUtil.isMainProcess()) {
+            String conf = gadget.substring(0, gadget.length() - 3) + ".config" + ".so";
+            FileUtil.writeFile(conf, GADGET_CONF.getBytes()); //å†™é…ç½®æ–‡ä»¶åˆ°/data/data/$PACKAGE/app_tweak/ç›®å½•ä¸‹
+        }
         long handle = JavaTweakBridge.nativeLoadLib(gadget);
         JavaTweakBridge.writeToLogcat(handle == 0 ? Log.ERROR : Log.INFO, "nativeLoadLib: libname = %s, handle = 0x%x", gadget, handle);
     }

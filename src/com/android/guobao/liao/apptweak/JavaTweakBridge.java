@@ -18,18 +18,18 @@ public class JavaTweakBridge {
     static private final ConcurrentHashMap<String, Method> backupMethods = new ConcurrentHashMap<String, Method>();
 
     /*
-     * nativeHookSymbolº¯Êı¿ÉÒÔhook¶¯Ì¬¿âÖĞµÄ·ûºÅ£¨´Ë·ûºÅ¿ÉÒÔÊÇµ¼³öµÄÒ²¿ÉÊÇÃ»µ¼³öµÄ£©£¬ÎªµÚÈı·½so¿ª·¢Ìá¹©hookÈë¿Ú£¬×¨Îªnative²ãhookº¯Êı¶øÉè¼Æ£¨Í¨¹ı·´Éäµ÷ÓÃ£©£¬java²ã²»¿Éµ÷ÓÃ£¬Ö§³Öarmeabi¡¢armeabi-v7a¡¢arm64-v8aÈıÖÖABI£¬Ö§³Öthumb¡¢armÁ½ÖÖÖ¸Áî¼¯¡£
-     * symbol: ĞèÒªhookµÄº¯Êı·ûºÅµØÖ·
-     * detour: Ìø°å·½·¨µÄº¯Êı·ûºÅµØÖ·
-     * return: ³É¹¦·µ»ØÔ­Ê¼·½·¨µÄµ÷ÓÃµØÖ·£¬Ê§°Ü·µ»Ø0
+     * nativeHookSymbolå‡½æ•°å¯ä»¥hookåŠ¨æ€åº“ä¸­çš„ç¬¦å·ï¼ˆæ­¤ç¬¦å·å¯ä»¥æ˜¯å¯¼å‡ºçš„ä¹Ÿå¯æ˜¯æ²¡å¯¼å‡ºçš„ï¼‰ï¼Œä¸ºç¬¬ä¸‰æ–¹soå¼€å‘æä¾›hookå…¥å£ï¼Œä¸“ä¸ºnativeå±‚hookå‡½æ•°è€Œè®¾è®¡ï¼ˆé€šè¿‡åå°„è°ƒç”¨ï¼‰ï¼Œjavaå±‚ä¸å¯è°ƒç”¨ï¼Œæ”¯æŒarmeabiã€armeabi-v7aã€arm64-v8aä¸‰ç§ABIï¼Œæ”¯æŒthumbã€armä¸¤ç§æŒ‡ä»¤é›†ã€‚
+     * symbol: éœ€è¦hookçš„å‡½æ•°ç¬¦å·åœ°å€
+     * detour: è·³æ¿æ–¹æ³•çš„å‡½æ•°ç¬¦å·åœ°å€
+     * return: æˆåŠŸè¿”å›åŸå§‹æ–¹æ³•çš„è°ƒç”¨åœ°å€ï¼Œå¤±è´¥è¿”å›0
      */
     static private native long nativeHookSymbol(long symbol, long detour);
 
     /*
-     * nativeLoadLibº¯Êı¿ÉÒÔ¼ÓÔØÒÑ¾­¼ÓÔØµÄso£¬Ò²¿ÉÒÔ¼ÓÔØÉĞÎ´¼ÓÔØµÄso£¬¿ÉÒÔ¼ÓÔØÏµÍ³so£¬Ò²¿ÉÒÔ¼ÓÔØ·ÇÏµÍ³so£¬¿ÉÒÔ¼ÓÔØ×Ô¼º/dataÄ¿Â¼ÏÂµÄso£¬Ò²¿ÉÒÔ¼ÓÔØ/sdcardÄ¿Â¼ÏÂµÄso
-     * libname: ¿ÉÒÔĞ´È«Â·¾¶£¬Ò²¿ÉÒÔÖ»Ğ´¿âÃû×Ö£¬Èç¹ûÖ»Ğ´¿âÃû×Ö£¬ÓÅÏÈ²éÕÒ/sdcard/tweak/$PACKAGEÄ¿Â¼£¬Æä´Î²éÕÒ/data/data/$PACKAGE/libÄ¿Â¼£¬×îºó²éÕÒÏµÍ³Ä¿Â¼
-     * return: ¼ÓÔØ³É¹¦·µ»Ødlopen¾ä±ú£¬Ê§°Ü·µ»Ø0
-     * nativeLoadLib·µ»ØµÄ¾ä±ú£¬Ã»ÓĞnamespaceÏŞÖÆ£¬¿ÉÒÔµ÷ÓÃdlsym¶¨Î»ÈÎÒâso£¨±ÈÈçlibart.so£©µÄ·ûºÅµØÖ·,Èç¹ûÊÇÊ×´Î¼ÓÔØso£¬»áÖ÷¶¯µ÷ÓÃJNI_OnLoad·½·¨£¨Èç¹ûÓĞµÄ»°£©
+     * nativeLoadLibå‡½æ•°å¯ä»¥åŠ è½½å·²ç»åŠ è½½çš„soï¼Œä¹Ÿå¯ä»¥åŠ è½½å°šæœªåŠ è½½çš„soï¼Œå¯ä»¥åŠ è½½ç³»ç»Ÿsoï¼Œä¹Ÿå¯ä»¥åŠ è½½éç³»ç»Ÿsoï¼Œå¯ä»¥åŠ è½½è‡ªå·±/dataç›®å½•ä¸‹çš„soï¼Œä¹Ÿå¯ä»¥åŠ è½½/sdcardç›®å½•ä¸‹çš„so
+     * libname: å¯ä»¥å†™å…¨è·¯å¾„ï¼Œä¹Ÿå¯ä»¥åªå†™åº“åå­—ï¼Œå¦‚æœåªå†™åº“åå­—ï¼Œä¼˜å…ˆæŸ¥æ‰¾/sdcard/tweak/$PACKAGEç›®å½•ï¼Œå…¶æ¬¡æŸ¥æ‰¾/data/data/$PACKAGE/libç›®å½•ï¼Œæœ€åæŸ¥æ‰¾ç³»ç»Ÿç›®å½•
+     * return: åŠ è½½æˆåŠŸè¿”å›dlopenå¥æŸ„ï¼Œå¤±è´¥è¿”å›0
+     * nativeLoadLibè¿”å›çš„å¥æŸ„ï¼Œæ²¡æœ‰namespaceé™åˆ¶ï¼Œå¯ä»¥è°ƒç”¨dlsymå®šä½ä»»æ„soï¼ˆæ¯”å¦‚libart.soï¼‰çš„ç¬¦å·åœ°å€,å¦‚æœæ˜¯é¦–æ¬¡åŠ è½½soï¼Œä¼šä¸»åŠ¨è°ƒç”¨JNI_OnLoadæ–¹æ³•ï¼ˆå¦‚æœæœ‰çš„è¯ï¼‰
      */
     static public native long nativeLoadLib(String libname);
 
@@ -44,25 +44,25 @@ public class JavaTweakBridge {
     }
 
     /*
-     * tweak_class: ±»Ìæ»»·½·¨ËùÊôµÄÀà
-     * tweak_method£º±»Ìæ»»·½·¨
-     * hook_class: Ìæ»»·½·¨ËùÊôµÄÀà
-     * hook_method£ºÌæ»»·½·¨
-     * ¼ÙÉèÀàCÖĞÓĞÒ»¸öÃûÎª¡¾List<String> doCommand(int i1, byte[] b2, boolean z3, String s4, HashMap<int, Object> o5)¡¿µÄ·½·¨
-     * ¶ÔÓÚ·Ç¹¹Ôì·½·¨£¬tweak_methodµÄ¶¨Òå·½Ê½Ö§³ÖÒÔÏÂÈıÖÖ  
-         1¡¢¡¾doCommand¡¿ //Í¨¹ıÃû³Æ²éÕÒ·Ç¹¹Ôì·½·¨,ÕâÖÖ·½Ê½ÒªÈ·±£·½·¨ÃûÔÚÀàÖĞÎ¨Ò»
-         2¡¢¡¾doCommand(int,byte[],boolean,java.lang.String,java.util.HashMap)¡¿ //Í¨¹ıÍêÕûÉùÃ÷²éÕÒ·Ç¹¹Ôì·½·¨
-         3¡¢¡¾(int,byte[],boolean,java.lang.String,java.util.HashMap<int,java.lang.Object>)java.util.List<java.lang.String>¡¿ //Í¨¹ı·½·¨Ç©Ãû²éÕÒ·Ç¹¹Ôì·½·¨,ÕâÖÖ·½Ê½ÒªÈ·±£Ç©ÃûÔÚÀàÖĞÎ¨Ò»£¬ÇÒ·ºĞÍÀà²ÎÊıÒªĞ´Ã÷ÊµÀıÀàĞÍ
-     * ¼ÙÉèÀàCÖĞÓĞÒ»¸öÃûÎª¡¾C(int i1, byte[] b2, boolean z3, String s4, HashMap<int, Object> o5)¡¿µÄ¹¹Ôì·½·¨
-     * ¶ÔÓÚ¹¹Ôì·½·¨£¬tweak_methodµÄ¶¨Òå·½Ê½Ö§³ÖÒÔÏÂÒ»ÖÖ
-         4¡¢¡¾(int,byte[],boolean,java.lang.String,java.util.HashMap)¡¿ //Í¨¹ıÍêÕûÉùÃ÷²éÕÒ¹¹Ôì·½·¨
-     * hook_methodµÄ¶¨Òå·½Ê½ºÍtweak_methodÒ»Ñù£¬µ«ÓÉÓÚhook_methodÊÇÓÉÎÒÃÇ×Ô¼º±àĞ´£¬ËùÒÔÍ¨³£²ÉÓÃ·½Ê½1£¬ÉèÖÃÎªÒ»¸öÀàÖĞÎ¨Ò»µÄ·½·¨Ãû¼´¿É¡£
-     * 2¡¢3¡¢4ÈıÖÖ·½Ê½²ÎÊıÀàĞÍÉêÃ÷±ØĞë¾«È·¶¨Òå£¬²»ÄÜÓĞ¿Õ¸ñ£¬²ÎÊıÓë²ÎÊıÖ®¼äÓÃ¶ººÅ·Ö¸ô
-     * ±»Ìæ»»·½·¨Èç¹ûÊÇ·Ç¾²Ì¬·½·¨Ê±£¬Ìæ»»·½·¨µÄµÚÒ»¸ö²ÎÊı±ØĞëÊÇ±»Ìæ»»·½·¨µÄthisÖ¸Õë£¬ÆäËü²ÎÊıÒÀ´ÎºóÒÆ£¨¼´Ìæ»»·½·¨»á¶àÒ»¸öthis²ÎÊı£©
-     * Ìæ»»·½·¨±ØĞëÊÇ¾²Ì¬·½·¨
-     * ±»Ìæ»»·½·¨²»ÄÜÊÇnative¡¢interface¡¢abstractµÈ·½·¨
-     * Ìæ»»·½·¨ËùÊôµÄÀà£¬ÀàÃû±ØĞëÓĞÍ³Ò»µÄÇ°×º¡¾com.android.guobao.liao.apptweak.JavaTweak_***¡¿
-     * return: ·µ»ØÖµÎª±»Ìæ»»·½·¨µÄ±¸·İ·½·¨,ÓÃÀ´µ÷ÓÃÔ­·½·¨
+     * tweak_class: è¢«æ›¿æ¢æ–¹æ³•æ‰€å±çš„ç±»
+     * tweak_methodï¼šè¢«æ›¿æ¢æ–¹æ³•
+     * hook_class: æ›¿æ¢æ–¹æ³•æ‰€å±çš„ç±»
+     * hook_methodï¼šæ›¿æ¢æ–¹æ³•
+     * å‡è®¾ç±»Cä¸­æœ‰ä¸€ä¸ªåä¸ºã€List<String> doCommand(int i1, byte[] b2, boolean z3, String s4, HashMap<int, Object> o5)ã€‘çš„æ–¹æ³•
+     * å¯¹äºéæ„é€ æ–¹æ³•ï¼Œtweak_methodçš„å®šä¹‰æ–¹å¼æ”¯æŒä»¥ä¸‹ä¸‰ç§  
+         1ã€ã€doCommandã€‘ //é€šè¿‡åç§°æŸ¥æ‰¾éæ„é€ æ–¹æ³•,è¿™ç§æ–¹å¼è¦ç¡®ä¿æ–¹æ³•ååœ¨ç±»ä¸­å”¯ä¸€
+         2ã€ã€doCommand(int,byte[],boolean,java.lang.String,java.util.HashMap)ã€‘ //é€šè¿‡å®Œæ•´å£°æ˜æŸ¥æ‰¾éæ„é€ æ–¹æ³•
+         3ã€ã€(int,byte[],boolean,java.lang.String,java.util.HashMap<int,java.lang.Object>)java.util.List<java.lang.String>ã€‘ //é€šè¿‡æ–¹æ³•ç­¾åæŸ¥æ‰¾éæ„é€ æ–¹æ³•,è¿™ç§æ–¹å¼è¦ç¡®ä¿ç­¾ååœ¨ç±»ä¸­å”¯ä¸€ï¼Œä¸”æ³›å‹ç±»å‚æ•°è¦å†™æ˜å®ä¾‹ç±»å‹
+     * å‡è®¾ç±»Cä¸­æœ‰ä¸€ä¸ªåä¸ºã€C(int i1, byte[] b2, boolean z3, String s4, HashMap<int, Object> o5)ã€‘çš„æ„é€ æ–¹æ³•
+     * å¯¹äºæ„é€ æ–¹æ³•ï¼Œtweak_methodçš„å®šä¹‰æ–¹å¼æ”¯æŒä»¥ä¸‹ä¸€ç§
+         4ã€ã€(int,byte[],boolean,java.lang.String,java.util.HashMap)ã€‘ //é€šè¿‡å®Œæ•´å£°æ˜æŸ¥æ‰¾æ„é€ æ–¹æ³•
+     * hook_methodçš„å®šä¹‰æ–¹å¼å’Œtweak_methodä¸€æ ·ï¼Œä½†ç”±äºhook_methodæ˜¯ç”±æˆ‘ä»¬è‡ªå·±ç¼–å†™ï¼Œæ‰€ä»¥é€šå¸¸é‡‡ç”¨æ–¹å¼1ï¼Œè®¾ç½®ä¸ºä¸€ä¸ªç±»ä¸­å”¯ä¸€çš„æ–¹æ³•åå³å¯ã€‚
+     * 2ã€3ã€4ä¸‰ç§æ–¹å¼å‚æ•°ç±»å‹ç”³æ˜å¿…é¡»ç²¾ç¡®å®šä¹‰ï¼Œä¸èƒ½æœ‰ç©ºæ ¼ï¼Œå‚æ•°ä¸å‚æ•°ä¹‹é—´ç”¨é€—å·åˆ†éš”
+     * è¢«æ›¿æ¢æ–¹æ³•å¦‚æœæ˜¯éé™æ€æ–¹æ³•æ—¶ï¼Œæ›¿æ¢æ–¹æ³•çš„ç¬¬ä¸€ä¸ªå‚æ•°å¿…é¡»æ˜¯è¢«æ›¿æ¢æ–¹æ³•çš„thisæŒ‡é’ˆï¼Œå…¶å®ƒå‚æ•°ä¾æ¬¡åç§»ï¼ˆå³æ›¿æ¢æ–¹æ³•ä¼šå¤šä¸€ä¸ªthiså‚æ•°ï¼‰
+     * æ›¿æ¢æ–¹æ³•å¿…é¡»æ˜¯é™æ€æ–¹æ³•
+     * è¢«æ›¿æ¢æ–¹æ³•ä¸èƒ½æ˜¯nativeã€interfaceã€abstractç­‰æ–¹æ³•
+     * æ›¿æ¢æ–¹æ³•æ‰€å±çš„ç±»ï¼Œç±»åå¿…é¡»æœ‰ç»Ÿä¸€çš„å‰ç¼€ã€com.android.guobao.liao.apptweak.JavaTweak_***ã€‘
+     * return: è¿”å›å€¼ä¸ºè¢«æ›¿æ¢æ–¹æ³•çš„å¤‡ä»½æ–¹æ³•,ç”¨æ¥è°ƒç”¨åŸæ–¹æ³•
      */
     static private native Method nativeHookMethod(Class<?> tweak_class, String tweak_method, Class<?> hook_class, String hook_method);
 
@@ -165,7 +165,7 @@ public class JavaTweakBridge {
             m = backupMethods.get(name);
             hr = (T) m.invoke(receiver, args);
         } catch (Throwable e) {
-            writeToLogcat(Log.ERROR, "callOriginalMethod: name<%s> error<%s>.", name, e); //Èç¹ûÔ­º¯Êı¿ÉÄÜÅ×³öÒì³££¬½øµ½ÕâÀïËµÃ÷´Ë´Î·´Éäµ÷ÓÃ´¥·¢ÁËÒì³£¡£
+            writeToLogcat(Log.ERROR, "callOriginalMethod: name<%s> error<%s>.", name, e); //å¦‚æœåŸå‡½æ•°å¯èƒ½æŠ›å‡ºå¼‚å¸¸ï¼Œè¿›åˆ°è¿™é‡Œè¯´æ˜æ­¤æ¬¡åå°„è°ƒç”¨è§¦å‘äº†å¼‚å¸¸ã€‚
         }
         if (log) {
             writeToLogcat(Log.INFO, paramsToString(name, m, hr, receiver, args));

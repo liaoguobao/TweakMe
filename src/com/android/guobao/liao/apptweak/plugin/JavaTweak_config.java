@@ -6,8 +6,8 @@ import com.android.guobao.liao.apptweak.util.*;
 @SuppressWarnings("unused")
 public class JavaTweak_config {
     static public void loadDexFile(String dex) {
-        //²å¼şÅäÖÃ²»ÊÇ±ØĞëµÄ£¬Èç¹ûÖØ´ò°üºóappÄÜÕı³£ÔËĞĞ¾ÍÎŞĞèÅäÖÃ¡£
-        //Èç¹ûÖØ´ò°üºóapp³öÏÖÉÁÍËÏÖÏó£¬¿ÉÒÔ³¢ÊÔÒÀ´Î·Å¿ªÏÂÃæµÄÅäÖÃ´úÂë£¬ÔÚÄ³Ğ©¼Ó¹Ì£¨±ÈÈç°ğ°ğ£©ÖĞ»áĞŞ¸´ÉÁÍËÏÖÏó£¬µ«²»±£Ö¤ÄÜĞŞ¸´ËùÓĞÉÁÍËÎÊÌâ¡£
+        //æ’ä»¶é…ç½®ä¸æ˜¯å¿…é¡»çš„ï¼Œå¦‚æœé‡æ‰“åŒ…åappèƒ½æ­£å¸¸è¿è¡Œå°±æ— éœ€é…ç½®ã€‚
+        //å¦‚æœé‡æ‰“åŒ…åappå‡ºç°é—ªé€€ç°è±¡ï¼Œå¯ä»¥å°è¯•ä¾æ¬¡æ”¾å¼€ä¸‹é¢çš„é…ç½®ä»£ç ï¼Œåœ¨æŸäº›åŠ å›ºï¼ˆæ¯”å¦‚æ¢†æ¢†ï¼‰ä¸­ä¼šä¿®å¤é—ªé€€ç°è±¡ï¼Œä½†ä¸ä¿è¯èƒ½ä¿®å¤æ‰€æœ‰é—ªé€€é—®é¢˜ã€‚
         //JavaTweakBridge.setPluginFlags(JavaTweakBridge.PLUGIN_FLAG_DISABLE_SYSCALL);
         //JavaTweakBridge.setPluginFlags(JavaTweakBridge.PLUGIN_FLAG_DISABLE_OPENAT);
         //JavaTweakBridge.setPluginFlags(JavaTweakBridge.PLUGIN_FLAG_DISABLE_SYSCALL|JavaTweakBridge.PLUGIN_FLAG_DISABLE_OPENAT);

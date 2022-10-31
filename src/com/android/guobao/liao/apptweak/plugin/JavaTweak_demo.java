@@ -7,20 +7,20 @@ import com.android.guobao.liao.apptweak.JavaTweakBridge;
 import com.android.guobao.liao.apptweak.util.*;
 
 @SuppressWarnings("unused")
-public class JavaTweak_demo { //Ìæ»»·½·¨ËùÊôµÄÀà£¬ÀàÃû±ØĞëÓĞÍ³Ò»µÄÇ°×º¡¾com.android.guobao.liao.apptweak.plugin.JavaTweak_***¡¿
+public class JavaTweak_demo { //æ›¿æ¢æ–¹æ³•æ‰€å±çš„ç±»ï¼Œç±»åå¿…é¡»æœ‰ç»Ÿä¸€çš„å‰ç¼€ã€com.android.guobao.liao.apptweak.plugin.JavaTweak_***ã€‘
     static public void loadDexFile(String dex) {
-        //´Ëº¯ÊıÄÚ¿ÉÒÔ×öÒ»Ğ©³õÊ¼»¯²Ù×÷£¬±ÈÈç¼ÓÔØnative¶¯Ì¬¿â£¬À¹½ØÏµÍ³Ààº¯ÊıµÈµÈ
+        //æ­¤å‡½æ•°å†…å¯ä»¥åšä¸€äº›åˆå§‹åŒ–æ“ä½œï¼Œæ¯”å¦‚åŠ è½½nativeåŠ¨æ€åº“ï¼Œæ‹¦æˆªç³»ç»Ÿç±»å‡½æ•°ç­‰ç­‰
         long handle = JavaTweakBridge.nativeLoadLib("libsodemo.so");
         JavaTweakBridge.writeToLogcat(Log.INFO, "nativeLoadLib: libname = libsodemo.so, handle = 0x%x", handle);
 
-        JavaTweakBridge.hookJavaMethod("android.app.ActivityThread", "performLaunchActivity");
-        JavaTweakBridge.hookJavaMethod("javax.net.ssl.SSLContext", "init");
-        //JavaTweakBridge.hookJavaMethod("javax.crypto.Cipher", "getInstance(java.lang.String)"); //static·½·¨hookÀı×Ó£¬ÈÕÖ¾±È½Ï¶à£¬Ä¬ÈÏ²»hook
-        //JavaTweakBridge.hookJavaMethod("javax.crypto.spec.SecretKeySpec", "(byte[],java.lang.String)"); //constructor·½·¨hookÀı×Ó£¬ÈÕÖ¾±È½Ï¶à£¬Ä¬ÈÏ²»hook
+        JavaTweakBridge.hookJavaMethod("android.app.Dialog", "show"); //å¦‚æœæ–¹æ³•åœ¨ç±»ä¸­æ²¡æœ‰è¢«é‡è½½ï¼Œå¯ä»¥åªå†™æ–¹æ³•å
+        JavaTweakBridge.hookJavaMethod("android.app.Activity", "startActivityForResult(android.content.Intent,int,android.os.Bundle)"); //å¦‚æœæ–¹æ³•åœ¨ç±»ä¸­æœ‰è¢«é‡è½½ï¼Œå¿…é¡»æŒ‡æ˜å‚æ•°åˆ—è¡¨
+        //JavaTweakBridge.hookJavaMethod("javax.crypto.Cipher", "getInstance(java.lang.String)"); //staticæ–¹æ³•hookä¾‹å­ï¼Œæ—¥å¿—æ¯”è¾ƒå¤šï¼Œé»˜è®¤ä¸hook
+        //JavaTweakBridge.hookJavaMethod("javax.crypto.spec.SecretKeySpec", "(byte[],java.lang.String)"); //constructoræ–¹æ³•hookä¾‹å­ï¼Œæ—¥å¿—æ¯”è¾ƒå¤šï¼Œé»˜è®¤ä¸hook
     }
 
     static public void defineClassLoader(ClassLoader loader) {
-        //Èç¹ûÏëhookµÄÀàÔÚdefineJavaClassÖĞÃ»ÓĞ±»»Øµ÷£¬¿ÉÒÔÔÚ´Ëº¯ÊıÖĞhook
+        //å¦‚æœæƒ³hookçš„ç±»åœ¨defineJavaClassä¸­æ²¡æœ‰è¢«å›è°ƒï¼Œå¯ä»¥åœ¨æ­¤å‡½æ•°ä¸­hook
         JavaTweakBridge.writeToLogcat(Log.INFO, "defineClassLoader: %s", loader);
     }
 
@@ -44,20 +44,20 @@ public class JavaTweak_demo { //Ìæ»»·½·¨ËùÊôµÄÀà£¬ÀàÃû±ØĞëÓĞÍ³Ò»µÄÇ°×º¡¾com.andr
         }
     }
 
-    static private Object performLaunchActivity(Object thiz, Object record, Object intent) {
-        return JavaTweakBridge.callOriginalMethod(thiz, record, intent);
+    static private void show(Object thiz) {
+        JavaTweakBridge.callOriginalMethod(thiz);
     }
 
-    static private Object getInstance(String transformation) { //¾²Ì¬·½·¨Ã»ÓĞthis²ÎÊı
+    static private void startActivityForResult(Object thiz, Object intent, int code, Object bundle) {
+        JavaTweakBridge.callOriginalMethod(thiz, intent, code, bundle);
+    }
+
+    static private Object getInstance(String transformation) { //é™æ€æ–¹æ³•æ²¡æœ‰thiså‚æ•°
         return JavaTweakBridge.callStaticOriginalMethod(transformation);
     }
 
-    static private void SecretKeySpec(Object thiz, byte[] key, String algorithm) { //¹¹Ôì·½·¨Ã»ÓĞ·µ»ØÖµ
+    static private void SecretKeySpec(Object thiz, byte[] key, String algorithm) { //æ„é€ æ–¹æ³•æ²¡æœ‰è¿”å›å€¼
         JavaTweakBridge.callOriginalMethod(thiz, key, algorithm);
-    }
-
-    static private void init(Object thiz, Object km, Object tm, Object random) {
-        JavaTweakBridge.callOriginalMethod(thiz, km, tm, random);
     }
 
     static private Object execute(Object thiz) throws Exception {
