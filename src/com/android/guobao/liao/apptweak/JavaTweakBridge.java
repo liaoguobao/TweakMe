@@ -140,6 +140,8 @@ public class JavaTweakBridge {
             backupMethods.put(hook_method_name, m);
             writeToLogcat(Log.INFO, "hookJavaMethod: method<%s> hook ok.", tweak_method);
             return true;
+        } catch (ClassNotFoundException e) {
+            return false; //在defineClassLoader中hook方法可能会触发此异常
         } catch (Throwable e) {
             writeToLogcat(Log.ERROR, e.toString());
             return false;
