@@ -33,7 +33,7 @@ public class JavaTweak_proxy {
     static public void loadDexFile(String dex) {
         JavaTweak_ProxyHelper.proxyIsOk();
         JavaTweakBridge.hookJavaMethod("javax.net.ssl.SSLContext", "init");
-        JavaTweakBridge.hookJavaMethod("java.net.URL", "openConnection()");
+        //JavaTweakBridge.hookJavaMethod("java.net.URL", "openConnection()");
     }
 
     static public void defineJavaClass(Class<?> clazz) {
