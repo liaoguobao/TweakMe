@@ -167,6 +167,7 @@ public class JavaTweakBridge {
             m = backupMethods.get(name);
             hr = (T) m.invoke(receiver, args);
         } catch (Throwable e) {
+            hr = (T) new Exception("JavaTweakBridge"); //如果抛出异常，hr被赋值为一个固定异常
             writeToLogcat(Log.ERROR, "callOriginalMethod: name<%s> error<%s>.", name, e); //如果原函数可能抛出异常，进到这里说明此次反射调用触发了异常。
         }
         if (log) {

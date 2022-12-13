@@ -30,19 +30,26 @@ public class TweakUtil {
         return app;
     }
 
-    static public Object returnWithException(Object hr, Exception e, boolean force) throws Exception {
-        if (force) {
-            e = (e == null ? new Exception(hr == null ? "returnWithException" : hr.toString()) : e);
-            throw e;
+    static public Object returnWithException(Object hr, String name, String msg) throws Exception {
+        if (!hasException(hr)) {
+            return hr;
         }
-        if (e != null && hr == null) {
-            throw e;
+        if (msg == null) {
+            msg = "";
         }
-        return hr; //(e == null || hr != null)
+        Exception e = (Exception) ReflectUtil.newClassInstance(ReflectUtil.classForName(name), "(java.lang.String)", msg);
+        if (e == null) {
+            e = new Exception(msg);
+        }
+        throw e;
     }
 
-    static public Object returnWithException(Object hr, Exception e) throws Exception {
-        return returnWithException(hr, e, false);
+    static public Object returnWithException(Object hr, String name) throws Exception {
+        return returnWithException(hr, name, null);
+    }
+
+    static public void voidWithException(Object hr, String name) throws Exception {
+        returnWithException(hr, name, null);
     }
 
     static public Context getSystemContext() {
@@ -66,5 +73,9 @@ public class TweakUtil {
         Object pm = ReflectUtil.callObjectMethod(sc, "getPackageManager");
         ApplicationInfo ai = (ApplicationInfo) ReflectUtil.callObjectMethod(pm, "getApplicationInfo(java.lang.String,int)", pn, flags);
         return ai;
+    }
+
+    static public boolean hasException(Object hr) {
+        return hr != null && Exception.class.isInstance(hr) && ((Exception) hr).getMessage().equals("JavaTweakBridge");
     }
 }

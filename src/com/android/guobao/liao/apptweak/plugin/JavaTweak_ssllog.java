@@ -1,6 +1,5 @@
 package com.android.guobao.liao.apptweak.plugin;
 
-import java.io.IOException;
 import android.util.Log;
 
 import com.android.guobao.liao.apptweak.JavaTweakBridge;
@@ -18,12 +17,15 @@ public class JavaTweak_ssllog {
     static private Object CallServerInterceptor(Object thiz, Object chain) throws Exception {
         Object req = JavaTweak_LogHelper.printOkHttpRequest(thiz, ReflectUtil.getObjectField(chain, "okhttp3.Request"));
         Object rsp = JavaTweak_LogHelper.printOkHttpResponse(thiz, JavaTweakBridge.nologOriginalMethod(thiz, chain));
-        return TweakUtil.returnWithException(rsp, rsp == null ? new IOException(thiz.toString()) : null);
+        return TweakUtil.returnWithException(rsp, "java.io.IOException");
     }
 }
 
 class JavaTweak_LogHelper {
     static public Object printOkHttpRequest(Object thiz, Object request) {
+        if (request == null || TweakUtil.hasException(request)) {
+            return request;
+        }
         String method = ReflectUtil.getObjectField(request, "java.lang.String").toString();
         String url = ReflectUtil.getObjectField(request, "okhttp3.HttpUrl").toString();
         String headers = ReflectUtil.getObjectField(request, "okhttp3.Headers").toString();
@@ -54,6 +56,9 @@ class JavaTweak_LogHelper {
     }
 
     static public Object printOkHttpResponse(Object thiz, Object response) {
+        if (response == null || TweakUtil.hasException(response)) {
+            return response;
+        }
         String protocol = ReflectUtil.getObjectField(response, "okhttp3.Protocol").toString();
         String code = ReflectUtil.getObjectField(response, ".int").toString();
         String message = ReflectUtil.getObjectField(response, "java.lang.String").toString();

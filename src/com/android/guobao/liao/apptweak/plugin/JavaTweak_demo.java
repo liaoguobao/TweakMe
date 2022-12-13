@@ -1,6 +1,5 @@
 package com.android.guobao.liao.apptweak.plugin;
 
-import java.io.IOException;
 import android.util.Log;
 
 import com.android.guobao.liao.apptweak.JavaTweakBridge;
@@ -66,7 +65,7 @@ public class JavaTweak_demo { //替换方法所属的类，类名必须有统一
     static private Object execute(Object thiz) throws Exception {
         //JavaTweakBridge.writeToLogcat(Log.INFO, Log.getStackTraceString(new Throwable()));
         Object hr = JavaTweakBridge.callOriginalMethod(thiz);
-        return TweakUtil.returnWithException(hr, hr == null ? new IOException(thiz.toString()) : null);
+        return TweakUtil.returnWithException(hr, "java.io.IOException");
     }
 
     static private void enqueue(Object thiz, Object callback) {
@@ -77,6 +76,6 @@ public class JavaTweak_demo { //替换方法所属的类，类名必须有统一
     static private Object executing(Object thiz, Object target, Object request, Object context) throws Exception {
         //JavaTweakBridge.writeToLogcat(Log.INFO, Log.getStackTraceString(new Throwable()));
         Object hr = JavaTweakBridge.callOriginalMethod(thiz, target, request, context);
-        return TweakUtil.returnWithException(hr, hr == null ? new IOException(thiz.toString()) : null);
+        return TweakUtil.returnWithException(hr, "java.io.IOException");
     }
 }

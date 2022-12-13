@@ -49,13 +49,13 @@ public class JavaTweak_proxy {
     static private Object RetryAndFollowUpInterceptor(Object thiz, Object chain) throws Exception {
         //JavaTweakBridge.writeToLogcat(Log.INFO, Log.getStackTraceString(new Throwable()));
         Object hr = JavaTweakBridge.nologOriginalMethod(JavaTweak_ProxyHelper.modifyOkHttpClient(thiz), chain);
-        return TweakUtil.returnWithException(hr, hr == null ? new IOException(thiz.toString()) : null);
+        return TweakUtil.returnWithException(hr, "java.io.IOException");
     }
 
     static private Object openConnection(Object thiz) throws Exception {
         JavaTweakBridge.writeToLogcat(Log.INFO, "proxy: url: %s", thiz);
         Object hr = !JavaTweak_ProxyHelper.proxyIsOk() ? JavaTweakBridge.nologOriginalMethod(thiz) : ReflectUtil.callObjectMethod(thiz, "openConnection(java.net.Proxy)", JavaTweak_ProxyHelper.newProxy());
-        return TweakUtil.returnWithException(hr, hr == null ? new IOException(thiz.toString()) : null);
+        return TweakUtil.returnWithException(hr, "java.io.IOException");
     }
 
     static private void init(Object thiz, Object km, Object[] tm, Object random) {
@@ -67,7 +67,7 @@ public class JavaTweak_proxy {
     static private Object execute(Object thiz, Object target, Object request, Object context) throws Exception {
         //JavaTweakBridge.writeToLogcat(Log.INFO, Log.getStackTraceString(new Throwable()));
         Object hr = JavaTweakBridge.nologOriginalMethod(JavaTweak_ProxyHelper.modifyApacheHttpClient(thiz, request), target, request, context);
-        return TweakUtil.returnWithException(hr, hr == null ? new IOException(thiz.toString()) : null);
+        return TweakUtil.returnWithException(hr, "java.io.IOException");
     }
 }
 
