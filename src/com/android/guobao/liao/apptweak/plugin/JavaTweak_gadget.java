@@ -6,9 +6,10 @@ import android.os.Environment;
 import android.util.Log;
 
 import com.android.guobao.liao.apptweak.JavaTweakBridge;
+import com.android.guobao.liao.apptweak.JavaTweakPlugin;
 import com.android.guobao.liao.apptweak.util.*;
 
-public class JavaTweak_gadget {
+public class JavaTweak_gadget extends JavaTweakPlugin {
     //本插件是为加载frida的libgadget.so而开发，gadget最好用魔改的去特征版本，否则加载后很可能被app检测到而引起闪退
     //如果配置为监听默认端口27042,则直接用下面方式连接gadget
     //frida -U gadget
@@ -21,7 +22,7 @@ public class JavaTweak_gadget {
     //script-directory: path
     static private final String GADGET_CONF = "{\"interaction\":{\"type\":\"listen\",\"address\":\"0.0.0.0\",\"port\":27042,\"path\":\"/sdcard/tweak/$PACKAGE/frida.js\",\"on_load\":\"resume\"},\"teardown\":\"minimal\",\"runtime\":\"default\",\"code_signing\":\"optional\"}";
 
-    static public void loadDexFile(String dex) {
+    protected void loadDexFile(String dex) {
         String pn = TweakUtil.currentPackageName();
         ApplicationInfo ai = TweakUtil.getApplicationInfo(0);
 

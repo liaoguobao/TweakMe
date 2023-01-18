@@ -3,31 +3,32 @@ package com.android.guobao.liao.apptweak.util;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 
 public class ReflectUtil {
-    static public Class<?> classForName(String name, boolean initialize, ClassLoader loader) {
+    static public Class<?> classForName(ClassLoader loader, String name, boolean initialize) {
         try {
             return Class.forName(name, initialize, loader);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             return null;
         }
     }
 
+    static public Class<?> classForName(ClassLoader loader, String name) {
+        return classForName(loader, name, true);
+    }
+
     static public Class<?> classForName(String name) {
-        return classForName(name, true, null);
+        return classForName(null, name);
     }
 
     static public Constructor<?> findClassConstructor(Class<?> clazz, String constructor) {
-        //(java.lang.String,int,byte[])
         String decl = null;
-        constructor = clazz.getName() + constructor;
         Constructor<?>[] cs = clazz.getDeclaredConstructors();
 
         for (int i = 0; i < cs.length; i++) {
-            decl = cs[i].toString();
-            decl = decl.substring(0, decl.lastIndexOf(')') + 1);
-            decl = decl.substring(decl.lastIndexOf(' ') + 1);
+            decl = getMemberDeclare(cs[i], true);
             if (decl.equals(constructor)) {
                 return cs[i];
             }
@@ -40,43 +41,25 @@ public class ReflectUtil {
     }
 
     static public Method findClassMethod(Class<?> clazz, String method, int index) {
-        //getDeclaredMethods
-        //getDeclaredMethods()
-        //()java.lang.reflect.Method[]
         int pos = method.indexOf('(');
         boolean isname = (pos == -1);
         boolean issign = (pos == 0);
-        String method_ = ((!isname && !issign) ? clazz.getName() + "." + method : method);
 
         int index_ = 0;
         String decl = null;
-        String retn = null;
         Method[] ms = clazz.getDeclaredMethods();
 
         for (int i = 0; i < ms.length; i++) {
-            if (isname) { //getDeclaredMethods
+            if (isname) {
                 decl = ms[i].getName();
-            } else if (!issign) { //getDeclaredMethods()
-                decl = ms[i].toString();
-                decl = decl.substring(0, decl.lastIndexOf(')') + 1);
-                decl = decl.substring(decl.lastIndexOf(' ') + 1);
-            } else { //()java.lang.reflect.Method[]
-                decl = ms[i].toGenericString();
-                decl = decl.substring(0, decl.lastIndexOf(')') + 1);
-                retn = decl.substring(0, decl.lastIndexOf(' '));
-                retn = retn.substring(retn.lastIndexOf(' ') + 1);
-                decl = decl.substring(decl.lastIndexOf('('));
-                decl += retn;
+            } else if (!issign) {
+                decl = getMemberDeclare(ms[i], true);
+            } else {
+                decl = getMemberSignature(ms[i]);
             }
-            if (decl.equals(method_) && index_++ == index) {
+            if (decl.equals(method) && index_++ == index) {
                 return ms[i];
             }
-        }
-        int pos_ = clazz.getName().lastIndexOf('$');
-        if (pos_ != -1) {
-            clazz = classForName(clazz.getName().substring(0, pos_), false, clazz.getClassLoader());
-            Method m = findClassMethod(clazz, method, index);
-            return m;
         }
         clazz = clazz.getSuperclass();
         if (clazz == null) {
@@ -93,34 +76,20 @@ public class ReflectUtil {
     static public Field findClassField(Class<?> clazz, String field, int index) {
         int pos = field.indexOf('.');
         boolean isname = (pos == -1);
-        String field_ = (pos == 0 ? field.substring(1) : field); //.int .byte[],如果是内置类型，前面一定要带一个点号，以做区分
 
-        if (!isname) { //如果传入的是字段类型，通过遍历方式模糊匹配
-            int index_ = 0;
-            int spec = 0;
-            String decl = null;
-            Field[] fs = clazz.getDeclaredFields();
+        int index_ = 0;
+        String decl = null;
+        Field[] fs = clazz.getDeclaredFields();
 
-            for (int i = 0; i < fs.length; i++) {
-                decl = fs[i].getGenericType().toString();
-                spec = decl.lastIndexOf(' ');
-                decl = (spec == -1 ? decl : decl.substring(spec + 1));
-                if (decl.equals(field_) && index_++ == index) {
-                    return fs[i];
-                }
+        for (int i = 0; i < fs.length; i++) {
+            if (isname) {
+                decl = fs[i].getName();
+            } else {
+                decl = getMemberSignature(fs[i]);
             }
-        } else { //如果传入的是字段名称，直接调用方法
-            try {
-                Field f = clazz.getDeclaredField(field);
-                return f;
-            } catch (Exception e) {
+            if (decl.equals(field) && index_++ == index) {
+                return fs[i];
             }
-        }
-        int pos_ = clazz.getName().lastIndexOf('$');
-        if (pos_ != -1) {
-            clazz = classForName(clazz.getName().substring(0, pos_), false, clazz.getClassLoader());
-            Field f = findClassField(clazz, field, index);
-            return f;
         }
         clazz = clazz.getSuperclass();
         if (clazz == null) {
@@ -253,5 +222,50 @@ public class ReflectUtil {
         }
         str += "}\r\n";
         return str;
+    }
+
+    static public String getMemberDeclare(Member member, boolean nopath) { //Method\Constructor
+        String decl = member.toString(); //private static java.lang.Object com.android.guobao.liao.apptweak.JavaTweakCallback.handleHookedMethod(java.lang.Object,java.lang.Object[],java.lang.Object) throws java.lang.Throwable
+        if (true) {
+            decl = decl.substring(0, decl.lastIndexOf(')') + 1);
+            decl = decl.substring(decl.lastIndexOf(' ') + 1); //com.android.guobao.liao.apptweak.JavaTweakCallback.handleHookedMethod(java.lang.Object,java.lang.Object[],java.lang.Object)
+        }
+        if (nopath) {
+            decl = decl.substring(member.getDeclaringClass().getName().length());
+            decl = decl.substring(decl.charAt(0) == '.' ? 1 : 0); //handleHookedMethod(java.lang.Object,java.lang.Object[],java.lang.Object)
+        }
+        return decl;
+    }
+
+    static public String getMemberSignature(Member member) { //Method\Field
+        String decl = null;
+        String retn = null;
+        if (Method.class.isInstance(member)) {
+            decl = ((Method) member).toGenericString(); //private static java.lang.Object com.android.guobao.liao.apptweak.JavaTweakCallback.handleHookedMethod(java.lang.Object,java.lang.Object[],java.lang.Object) throws java.lang.Throwable
+            decl = decl.substring(0, decl.lastIndexOf(')') + 1);
+            retn = decl.substring(0, decl.lastIndexOf(' '));
+            retn = retn.substring(retn.lastIndexOf(' ') + 1);
+            decl = decl.substring(decl.lastIndexOf('('));
+            decl = decl + retn; //(java.lang.Object,java.lang.Object[],java.lang.Object)java.lang.Object
+        } else {
+            decl = ((Field) member).getGenericType().toString(); //private static java.lang.Object
+            decl = decl.substring(decl.lastIndexOf(' ') + 1); //java.lang.Object
+            decl = ((Field) member).getType().isPrimitive() ? "." + decl : decl; //.int
+        }
+        return decl;
+    }
+
+    static public Member findClassMember(Class<?> clazz, String member, int index, boolean isfield) {
+        if (isfield) {
+            return findClassField(clazz, member, index);
+        } else if (member.length() >= 2 && member.charAt(0) == '(' && member.charAt(member.length() - 1) == ')') {
+            return findClassConstructor(clazz, member);
+        } else {
+            return findClassMethod(clazz, member, index);
+        }
+    }
+
+    static public Member findClassMember(Class<?> clazz, String member, boolean isfield) {
+        return findClassMember(clazz, member, 0, isfield);
     }
 }

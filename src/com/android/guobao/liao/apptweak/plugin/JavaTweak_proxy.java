@@ -3,9 +3,9 @@ package com.android.guobao.liao.apptweak.plugin;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.Proxy;
 import java.net.Socket;
 import java.net.URI;
+import java.net.URL;
 import java.net.UnknownHostException;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
@@ -26,48 +26,48 @@ import javax.net.ssl.X509TrustManager;
 import android.util.Log;
 
 import com.android.guobao.liao.apptweak.JavaTweakBridge;
+import com.android.guobao.liao.apptweak.JavaTweakHook;
+import com.android.guobao.liao.apptweak.JavaTweakPlugin;
 import com.android.guobao.liao.apptweak.util.*;
 
-@SuppressWarnings({ "unused" })
-public class JavaTweak_proxy {
-    static public void loadDexFile(String dex) {
+public class JavaTweak_proxy extends JavaTweakPlugin {
+    protected void loadDexFile(String dex) {
         JavaTweak_ProxyHelper.proxyIsOk();
-        JavaTweakBridge.hookJavaMethod("javax.net.ssl.SSLContext", "init");
-        //JavaTweakBridge.hookJavaMethod("java.net.URL", "openConnection()");
+        JavaTweakBridge.hookJavaMethod(SSLContext.class, "init", new JavaTweakHook(true) {
+            protected void beforeHookedMethod(Object thiz, Object[] args) {
+                Object[] tms = new TrustManager[] { new JavaTweak_X509TrustManager() };
+                JavaTweakBridge.writeToLogcat(Log.INFO, "proxy: init: %s--->%s", args[1] == null ? null : ((Object[]) args[1])[0], tms[0]);
+                args[1] = tms;
+            }
+        });
+        /*JavaTweakBridge.hookJavaMethod(URL.class, "openConnection()", new JavaTweakHook(true) {
+            protected void beforeHookedMethod(Object thiz, Object[] args) {
+                JavaTweakBridge.writeToLogcat(Log.INFO, "proxy: url: %s", thiz);
+                if (JavaTweak_ProxyHelper.proxyIsOk()) {
+                    setResult(ReflectUtil.callObjectMethod(thiz, "openConnection(java.net.Proxy)", JavaTweak_ProxyHelper.newProxy()));
+                }
+            }
+        });*/
     }
 
-    static public void defineJavaClass(Class<?> clazz) {
+    protected void defineJavaClass(Class<?> clazz) {
         String name = clazz.getName();
         if (name.equals("okhttp3.internal.http.RetryAndFollowUpInterceptor") || name.equals("okhttp3.OkHttpClient")) {
-            JavaTweakBridge.hookJavaMethod(clazz.getClassLoader(), "okhttp3.internal.http.RetryAndFollowUpInterceptor", "(okhttp3.Interceptor$Chain)okhttp3.Response", "RetryAndFollowUpInterceptor");
+            JavaTweakBridge.hookJavaMethod(clazz.getClassLoader(), "okhttp3.internal.http.RetryAndFollowUpInterceptor", "(okhttp3.Interceptor$Chain)okhttp3.Response", new JavaTweakHook(true) {
+                protected void beforeHookedMethod(Object thiz, Object[] args) {
+                    //JavaTweakBridge.writeToLogcat(Log.INFO, Log.getStackTraceString(new Throwable()));
+                    JavaTweak_ProxyHelper.modifyOkHttpClient(thiz);
+                }
+            });
         }
         if (name.equals("org.apache.http.impl.client.DefaultRequestDirector") || name.equals("org.apache.http.impl.client.DefaultHttpClient")) {
-            JavaTweakBridge.hookJavaMethod(clazz.getClassLoader(), "org.apache.http.impl.client.DefaultRequestDirector", "(org.apache.http.HttpHost,org.apache.http.HttpRequest,org.apache.http.protocol.HttpContext)org.apache.http.HttpResponse", "execute");
+            JavaTweakBridge.hookJavaMethod(clazz.getClassLoader(), "org.apache.http.impl.client.DefaultRequestDirector", "(org.apache.http.HttpHost,org.apache.http.HttpRequest,org.apache.http.protocol.HttpContext)org.apache.http.HttpResponse", new JavaTweakHook(true) {
+                protected void beforeHookedMethod(Object thiz, Object[] args) {
+                    //JavaTweakBridge.writeToLogcat(Log.INFO, Log.getStackTraceString(new Throwable()));
+                    JavaTweak_ProxyHelper.modifyApacheHttpClient(thiz, args[1]);
+                }
+            });
         }
-    }
-
-    static private Object RetryAndFollowUpInterceptor(Object thiz, Object chain) throws Exception {
-        //JavaTweakBridge.writeToLogcat(Log.INFO, Log.getStackTraceString(new Throwable()));
-        Object hr = JavaTweakBridge.nologOriginalMethod(JavaTweak_ProxyHelper.modifyOkHttpClient(thiz), chain);
-        return TweakUtil.returnWithException(hr, "java.io.IOException");
-    }
-
-    static private Object openConnection(Object thiz) throws Exception {
-        JavaTweakBridge.writeToLogcat(Log.INFO, "proxy: url: %s", thiz);
-        Object hr = !JavaTweak_ProxyHelper.proxyIsOk() ? JavaTweakBridge.nologOriginalMethod(thiz) : ReflectUtil.callObjectMethod(thiz, "openConnection(java.net.Proxy)", JavaTweak_ProxyHelper.newProxy());
-        return TweakUtil.returnWithException(hr, "java.io.IOException");
-    }
-
-    static private void init(Object thiz, Object km, Object[] tm, Object random) {
-        Object[] tms = new TrustManager[] { new JavaTweak_X509TrustManager() };
-        JavaTweakBridge.writeToLogcat(Log.INFO, "proxy: init: %s--->%s", tm == null ? null : tm[0], tms[0]);
-        JavaTweakBridge.nologOriginalMethod(thiz, km, tms, random);
-    }
-
-    static private Object execute(Object thiz, Object target, Object request, Object context) throws Exception {
-        //JavaTweakBridge.writeToLogcat(Log.INFO, Log.getStackTraceString(new Throwable()));
-        Object hr = JavaTweakBridge.nologOriginalMethod(JavaTweak_ProxyHelper.modifyApacheHttpClient(thiz, request), target, request, context);
-        return TweakUtil.returnWithException(hr, "java.io.IOException");
     }
 }
 
@@ -102,7 +102,7 @@ class JavaTweak_ProxyHelper {
 
         if (protos.size() != 1 || !protos.get(0).toString().equals("http/1.1")) {
             List<Object> proto = new ArrayList<Object>();
-            Class<?> Protocol = ReflectUtil.classForName("okhttp3.Protocol", false, client.getClass().getClassLoader());
+            Class<?> Protocol = ReflectUtil.classForName(client.getClass().getClassLoader(), "okhttp3.Protocol");
             proto.add(ReflectUtil.callClassMethod(Protocol, "(java.lang.String)okhttp3.Protocol", "http/1.1"));
 
             JavaTweakBridge.writeToLogcat(Log.INFO, "proxy: protocol: %s--->%s", protos, proto);
@@ -174,11 +174,11 @@ class JavaTweak_ProxyHelper {
             Object params = ReflectUtil.callObjectMethod(client, "getParams");
             URI uri = (URI) ReflectUtil.callObjectMethod(client, "getURI");
 
-            Class<?> HttpHost = ReflectUtil.classForName("org.apache.http.HttpHost", false, client.getClass().getClassLoader());
+            Class<?> HttpHost = ReflectUtil.classForName(client.getClass().getClassLoader(), "org.apache.http.HttpHost");
             Object proxy = ReflectUtil.newClassInstance(HttpHost, "(java.lang.String,int,java.lang.String)", proxyhost, proxyport, "http");
             Object target = ReflectUtil.newClassInstance(HttpHost, "(java.lang.String,int,java.lang.String)", uri.getHost(), uri.getPort(), uri.getScheme());
 
-            Class<?> HttpRoute = ReflectUtil.classForName("org.apache.http.conn.routing.HttpRoute", false, client.getClass().getClassLoader());
+            Class<?> HttpRoute = ReflectUtil.classForName(client.getClass().getClassLoader(), "org.apache.http.conn.routing.HttpRoute");
             Object route = ReflectUtil.newClassInstance(HttpRoute, "(org.apache.http.HttpHost,java.net.InetAddress,org.apache.http.HttpHost,boolean)", target, null, proxy, uri.getScheme() == "https");
 
             ReflectUtil.callObjectMethod(params, "setParameter", /*ConnRoutePNames.FORCED_ROUTE*/"http.route.forced-route", route); //这一步必须设置
@@ -217,8 +217,8 @@ class JavaTweak_ProxyHelper {
                 ReflectUtil.setObjectField(thiz, "javax.net.ssl.SSLSocketFactory", sf);
                 JavaTweakBridge.writeToLogcat(Log.INFO, "proxy: factory: %s--->%s", factory, sf);
 
-                Class<?> Cleaner = ReflectUtil.classForName("okhttp3.internal.tls.CertificateChainCleaner", true, thiz.getClass().getClassLoader());
-                Class<?> Companion = ReflectUtil.classForName("okhttp3.internal.tls.CertificateChainCleaner$Companion", true, thiz.getClass().getClassLoader()); //如果是4.x版本，这里应该找这个类的内部类，因为接下来调用的get方法被实现在了内部类中
+                Class<?> Cleaner = ReflectUtil.classForName(thiz.getClass().getClassLoader(), "okhttp3.internal.tls.CertificateChainCleaner");
+                Class<?> Companion = ReflectUtil.classForName(thiz.getClass().getClassLoader(), "okhttp3.internal.tls.CertificateChainCleaner$Companion"); //如果是4.x版本，这里应该找这个类的内部类，因为接下来调用的get方法被实现在了内部类中
 
                 Object xxx = ReflectUtil.getObjectField(thiz, "okhttp3.internal.tls.CertificateChainCleaner");
                 Object cmp = Companion != null ? ReflectUtil.getClassField(Cleaner, "okhttp3.internal.tls.CertificateChainCleaner$Companion") : xxx;

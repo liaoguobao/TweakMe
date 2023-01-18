@@ -3,27 +3,30 @@ package com.android.guobao.liao.apptweak.plugin;
 import android.util.Log;
 
 import com.android.guobao.liao.apptweak.JavaTweakBridge;
+import com.android.guobao.liao.apptweak.JavaTweakHook;
+import com.android.guobao.liao.apptweak.JavaTweakPlugin;
 import com.android.guobao.liao.apptweak.util.*;
 
-@SuppressWarnings({ "unused" })
-public class JavaTweak_ssllog {
-    static public void defineJavaClass(Class<?> clazz) {
+public class JavaTweak_ssllog extends JavaTweakPlugin {
+    protected void defineJavaClass(Class<?> clazz) {
         String name = clazz.getName();
         if (name.equals("okhttp3.internal.http.CallServerInterceptor") || name.equals("okhttp3.OkHttpClient")) {
-            JavaTweakBridge.hookJavaMethod(clazz.getClassLoader(), "okhttp3.internal.http.CallServerInterceptor", "(okhttp3.Interceptor$Chain)okhttp3.Response", "CallServerInterceptor");
-        }
-    }
+            JavaTweakBridge.hookJavaMethod(clazz.getClassLoader(), "okhttp3.internal.http.CallServerInterceptor", "(okhttp3.Interceptor$Chain)okhttp3.Response", new JavaTweakHook(true) {
+                protected void beforeHookedMethod(Object thiz, Object[] args) {
+                    JavaTweak_LogHelper.printOkHttpRequest(thiz, ReflectUtil.getObjectField(args[0], "okhttp3.Request"));
+                }
 
-    static private Object CallServerInterceptor(Object thiz, Object chain) throws Exception {
-        Object req = JavaTweak_LogHelper.printOkHttpRequest(thiz, ReflectUtil.getObjectField(chain, "okhttp3.Request"));
-        Object rsp = JavaTweak_LogHelper.printOkHttpResponse(thiz, JavaTweakBridge.nologOriginalMethod(thiz, chain));
-        return TweakUtil.returnWithException(rsp, "java.io.IOException");
+                protected void afterHookedMethod(Object thiz, Object[] args) {
+                    JavaTweak_LogHelper.printOkHttpResponse(thiz, getResult());
+                }
+            });
+        }
     }
 }
 
 class JavaTweak_LogHelper {
     static public Object printOkHttpRequest(Object thiz, Object request) {
-        if (request == null || TweakUtil.hasException(request)) {
+        if (request == null) {
             return request;
         }
         String method = ReflectUtil.getObjectField(request, "java.lang.String").toString();
@@ -38,7 +41,7 @@ class JavaTweak_LogHelper {
 
         byte[] bodydata = null;
         if (body != null) {
-            Class<?> Buffer = ReflectUtil.classForName("okio.Buffer", true, request.getClass().getClassLoader());
+            Class<?> Buffer = ReflectUtil.classForName(request.getClass().getClassLoader(), "okio.Buffer");
             Object buffer = ReflectUtil.newClassInstance(Buffer);
 
             ReflectUtil.callObjectMethod(body, "(okio.BufferedSink)void", buffer); //writeTo
@@ -56,7 +59,7 @@ class JavaTweak_LogHelper {
     }
 
     static public Object printOkHttpResponse(Object thiz, Object response) {
-        if (response == null || TweakUtil.hasException(response)) {
+        if (response == null) {
             return response;
         }
         String protocol = ReflectUtil.getObjectField(response, "okhttp3.Protocol").toString();
