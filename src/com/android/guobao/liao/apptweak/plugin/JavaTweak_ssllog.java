@@ -48,8 +48,8 @@ class JavaTweak_LogHelper {
             bodydata = (byte[]) ReflectUtil.callObjectMethod(buffer, "()byte[]"); //readByteArray
 
             Object type = ReflectUtil.callObjectMethod(body, "()okhttp3.MediaType"); //contentType
-            body = ReflectUtil.callClassMethod(body.getClass(), "(okhttp3.MediaType,byte[])okhttp3.RequestBody", type, bodydata); //create
-            ReflectUtil.setObjectField(request, "okhttp3.RequestBody", body);
+            Object bodi = type == null ? body : ReflectUtil.callClassMethod(body.getClass(), "(okhttp3.MediaType,byte[])okhttp3.RequestBody", type, bodydata); //create
+            ReflectUtil.setObjectField(request, "okhttp3.RequestBody", bodi);
         }
         byte[] infdata = ZlibUtil.inflate(bodydata);
         bodydata = (infdata != null ? infdata : bodydata);
@@ -82,8 +82,8 @@ class JavaTweak_LogHelper {
             bodydata = (byte[]) ReflectUtil.callObjectMethod(buffer, "()byte[]"); //readByteArray
 
             Object type = ReflectUtil.callObjectMethod(body, "()okhttp3.MediaType"); //contentType
-            body = ReflectUtil.callClassMethod(body.getClass(), "(okhttp3.MediaType,byte[])okhttp3.ResponseBody", type, bodydata); //create
-            ReflectUtil.setObjectField(response, "okhttp3.ResponseBody", body); //body
+            Object bodi = type == null ? body : ReflectUtil.callClassMethod(body.getClass(), "(okhttp3.MediaType,byte[])okhttp3.ResponseBody", type, bodydata); //create
+            ReflectUtil.setObjectField(response, "okhttp3.ResponseBody", bodi); //body
         }
         byte[] infdata = ZlibUtil.inflate(bodydata);
         bodydata = (infdata != null ? infdata : bodydata);

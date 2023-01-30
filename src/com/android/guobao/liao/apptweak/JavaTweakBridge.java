@@ -12,6 +12,7 @@ public class JavaTweakBridge {
     static public final int PLUGIN_FLAG_DISABLE_OPENAT = 0x00000001;
     static public final int PLUGIN_FLAG_DISABLE_SYSCALL = 0x00000002;
     static public final int PLUGIN_FLAG_DISABLE_THREAD = 0x00000004;
+    static public final int PLUGIN_FLAG_CAN_HOOK_CHAIN = 0x00010000;
 
     static private/*final*/int pluginFlags = 0;
     static private final ConcurrentHashMap<String, JavaTweakHook> backupMethods = new ConcurrentHashMap<String, JavaTweakHook>();
@@ -57,10 +58,11 @@ public class JavaTweakBridge {
      * 被替换方法不能是interface、abstract等方法
      * return: 返回值为被替换方法的备份方法,用来调用原方法
      */
-    static private native Method nativeHookMethod(Class<?> hook_class, String hook_method, Object hook_data);
+    static private native Method nativeHookMethod(Class<?> hook_class, String hook_method, Object hook_data, boolean can_hook_chain);
 
     static public boolean hookJavaMethod(Class<?> hook_class, String hook_method, JavaTweakHook hook_data) {
         try {
+            boolean can_hook_chain = (pluginFlags & PLUGIN_FLAG_CAN_HOOK_CHAIN) != 0;
             if (hook_class == null || hook_method == null || hook_method.equals("")) {
                 return false;
             }
@@ -70,15 +72,14 @@ public class JavaTweakBridge {
                 return false;
             }
             String method_decl = ReflectUtil.getMemberDeclare(hook_member, false);
-            if (backupMethods.containsKey(method_decl)) {
+            if (!can_hook_chain && backupMethods.containsKey(method_decl)) {
                 //writeToLogcat(Log.WARN, "hookJavaMethod: method<%s> hook repeat.", hook_method);
                 return false;
             }
             if (hook_data == null) {
-                hook_data = new JavaTweakHook() {
-                };
+                hook_data = JavaTweakHook.onlyLogHook();
             }
-            Method m = nativeHookMethod(hook_class, hook_method, hook_data);
+            Method m = nativeHookMethod(hook_class, hook_method, hook_data, can_hook_chain);
             if (m == null) {
                 writeToLogcat(Log.ERROR, "hookJavaMethod: method<%s> hook error.", hook_method);
                 return false;
@@ -94,7 +95,7 @@ public class JavaTweakBridge {
     }
 
     static public boolean hookJavaMethod(Class<?> hook_class, String hook_method) {
-        return hookJavaMethod(hook_class, hook_method, null);
+        return hookJavaMethod(hook_class, hook_method, (JavaTweakHook) null);
     }
 
     static public boolean hookAllJavaMethods(Class<?> hook_class, String method_name, JavaTweakHook hook_data) {
@@ -143,7 +144,7 @@ public class JavaTweakBridge {
         Class<?>[] ts = hook_constr.getParameterTypes();
         for (int i = 0; i < ts.length; i++) {
             String t = ts[i].getName();
-            if (i == 0) {
+            if (i == 0 && thiz != null) {
                 args.add(thiz);
             } else if (t.equals("java.lang.String")) {
                 args.add(name_);
@@ -160,11 +161,19 @@ public class JavaTweakBridge {
         pluginFlags = flags;
     }
 
+    static public int getPluginFlags() {
+        return pluginFlags;
+    }
+
     static public boolean hookJavaMethod(ClassLoader hook_loader, String hook_class, String hook_method, JavaTweakHook hook_data) {
         return hookJavaMethod(ReflectUtil.classForName(hook_loader, hook_class), hook_method, hook_data);
     }
 
     static public boolean hookJavaMethod(ClassLoader hook_loader, String hook_class, String hook_method) {
         return hookJavaMethod(hook_loader, hook_class, hook_method, null);
+    }
+
+    static public boolean hookJavaMethod(Class<?> hook_class, String hook_method, String friendly_method_name_for_log) {
+        return hookJavaMethod(hook_class, hook_method, JavaTweakHook.nameLogHook(friendly_method_name_for_log));
     }
 }

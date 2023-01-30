@@ -24,28 +24,34 @@ public class ReflectUtil {
     }
 
     static public Constructor<?> findClassConstructor(Class<?> clazz, String constructor) {
-        String decl = null;
-        Constructor<?>[] cs = clazz.getDeclaredConstructors();
+        return findClassConstructor(clazz, constructor, null);
+    }
 
+    static public Constructor<?> findClassConstructor(Class<?> clazz, String constructor, Object[] args) {
+        Constructor<?>[] cs = clazz.getDeclaredConstructors();
         for (int i = 0; i < cs.length; i++) {
-            decl = getMemberDeclare(cs[i], true);
-            if (decl.equals(constructor)) {
-                return cs[i];
+            if (!constructor.equals("")) { //优先declare匹配
+                if (getMemberDeclare(cs[i], true).equals(constructor)) {
+                    return cs[i]; //匹配成功就可以直接返回，因为这种匹配是精确匹配。   
+                }
+            } else if (args != null) {
+                if (matchMemberArgs(cs[i], args)) {
+                    return cs[i]; //其次args匹配
+                }
             }
         }
         return null;
     }
 
     static public Method findClassMethod(Class<?> clazz, String method) {
-        return findClassMethod(clazz, method, 0);
+        return findClassMethod(clazz, method, null);
     }
 
-    static public Method findClassMethod(Class<?> clazz, String method, int index) {
+    static public Method findClassMethod(Class<?> clazz, String method, Object[] args) {
         int pos = method.indexOf('(');
         boolean isname = (pos == -1);
         boolean issign = (pos == 0);
 
-        int index_ = 0;
         String decl = null;
         Method[] ms = clazz.getDeclaredMethods();
 
@@ -57,27 +63,26 @@ public class ReflectUtil {
             } else {
                 decl = getMemberSignature(ms[i]);
             }
-            if (decl.equals(method) && index_++ == index) {
-                return ms[i];
+            if (!decl.equals(method)) {
+                continue;
             }
+            if (isname && args != null && !matchMemberArgs(ms[i], args)) {
+                continue; //以方法名称查找方法是不精确的，特别是方法有重载的情况下，需要进行一次参数匹配
+            }
+            return ms[i];
         }
         clazz = clazz.getSuperclass();
         if (clazz == null) {
             return null;
         }
-        Method m = findClassMethod(clazz, method, index);
+        Method m = findClassMethod(clazz, method, args);
         return m;
     }
 
     static public Field findClassField(Class<?> clazz, String field) {
-        return findClassField(clazz, field, 0);
-    }
-
-    static public Field findClassField(Class<?> clazz, String field, int index) {
         int pos = field.indexOf('.');
         boolean isname = (pos == -1);
 
-        int index_ = 0;
         String decl = null;
         Field[] fs = clazz.getDeclaredFields();
 
@@ -87,7 +92,7 @@ public class ReflectUtil {
             } else {
                 decl = getMemberSignature(fs[i]);
             }
-            if (decl.equals(field) && index_++ == index) {
+            if (decl.equals(field)) {
                 return fs[i];
             }
         }
@@ -95,13 +100,13 @@ public class ReflectUtil {
         if (clazz == null) {
             return null;
         }
-        Field f = findClassField(clazz, field, index);
+        Field f = findClassField(clazz, field);
         return f;
     }
 
     static public Object newClassInstance(Class<?> clazz, String constructor, Object... args) {
         try {
-            Constructor<?> c = findClassConstructor(clazz, constructor);
+            Constructor<?> c = findClassConstructor(clazz, constructor, args);
             c.setAccessible(true);
             Object o = c.newInstance(args);
             return o;
@@ -174,7 +179,7 @@ public class ReflectUtil {
 
     static public Object callObjectMethod(Object o, String method, Object... args) {
         try {
-            Method m = findClassMethod(o.getClass(), method);
+            Method m = findClassMethod(o.getClass(), method, args);
             m.setAccessible(true);
             Object hr = m.invoke(o, args);
             return hr;
@@ -185,7 +190,7 @@ public class ReflectUtil {
 
     static public Object callClassMethod(Class<?> clazz, String method, Object... args) {
         try {
-            Method m = findClassMethod(clazz, method);
+            Method m = findClassMethod(clazz, method, args);
             m.setAccessible(true);
             Object hr = m.invoke(null, args);
             return hr;
@@ -194,10 +199,15 @@ public class ReflectUtil {
         }
     }
 
-    static public String objectToString(Object o) {
-        String str = o.getClass().getName() + "->objectToString{\r\n";
+    static public String peekObject(Object o, Class<?> clazz) {
+        if (clazz == null) {
+            clazz = o.getClass();
+        } else if (!clazz.isInstance(o)) {
+            return "";
+        }
+        String str = clazz.getName() + "->peekObject{\r\n";
 
-        Field[] fs = o.getClass().getDeclaredFields();
+        Field[] fs = clazz.getDeclaredFields();
         for (int i = 0; i < fs.length; i++) {
             str += String.format("\to%02d: %s = %s\r\n", i, fs[i].getName(), getObjectField(o, fs[i].getName()));
         }
@@ -205,8 +215,12 @@ public class ReflectUtil {
         return str;
     }
 
-    static public String classToString(Class<?> clazz) {
-        String str = clazz.getName() + "->classToString{\r\n";
+    static public String peekObject(Object o) {
+        return peekObject(o, null);
+    }
+
+    static public String peekClass(Class<?> clazz) {
+        String str = clazz.getName() + "->peekClass{\r\n";
 
         Field[] fs = clazz.getDeclaredFields();
         for (int i = 0; i < fs.length; i++) {
@@ -222,6 +236,56 @@ public class ReflectUtil {
         }
         str += "}\r\n";
         return str;
+    }
+
+    static public boolean matchMemberArgs(Member member, Object... args) { //Method\Constructor
+        Class<?>[] ts = !Method.class.isInstance(member) ? ((Constructor<?>) member).getParameterTypes() : ((Method) member).getParameterTypes();
+        if (args.length != ts.length) {
+            return false;
+        }
+        for (int j = 0; j < ts.length; j++) {
+            if (args[j] == null) {
+                continue;
+            }
+            if (!ts[j].isPrimitive()) {
+                if (!ts[j].isInstance(args[j])) {
+                    return false;
+                }
+            } else if (ts[j] == boolean.class) {
+                if (!Boolean.class.isInstance(args[j])) {
+                    return false;
+                }
+            } else if (ts[j] == byte.class) {
+                if (!Byte.class.isInstance(args[j])) {
+                    return false;
+                }
+            } else if (ts[j] == char.class) {
+                if (!Character.class.isInstance(args[j])) {
+                    return false;
+                }
+            } else if (ts[j] == short.class) {
+                if (!Short.class.isInstance(args[j])) {
+                    return false;
+                }
+            } else if (ts[j] == int.class) {
+                if (!Integer.class.isInstance(args[j])) {
+                    return false;
+                }
+            } else if (ts[j] == long.class) {
+                if (!Long.class.isInstance(args[j])) {
+                    return false;
+                }
+            } else if (ts[j] == float.class) {
+                if (!Float.class.isInstance(args[j])) {
+                    return false;
+                }
+            } else if (ts[j] == double.class) {
+                if (!Double.class.isInstance(args[j])) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     static public String getMemberDeclare(Member member, boolean nopath) { //Method\Constructor
@@ -255,17 +319,28 @@ public class ReflectUtil {
         return decl;
     }
 
-    static public Member findClassMember(Class<?> clazz, String member, int index, boolean isfield) {
+    static public Member findClassMember(Class<?> clazz, String member, boolean isfield) {
         if (isfield) {
-            return findClassField(clazz, member, index);
+            return findClassField(clazz, member);
         } else if (member.length() >= 2 && member.charAt(0) == '(' && member.charAt(member.length() - 1) == ')') {
             return findClassConstructor(clazz, member);
         } else {
-            return findClassMethod(clazz, member, index);
+            return findClassMethod(clazz, member);
         }
     }
 
-    static public Member findClassMember(Class<?> clazz, String member, boolean isfield) {
-        return findClassMember(clazz, member, 0, isfield);
+    static public String getParamTypesDeclare(Class<?>[] types) { //Method\Constructor
+        if (types == null) {
+            return "()";
+        }
+        String decl = "";
+        for (int i = 0; i < types.length; i++) {
+            decl += "," + types[i].getCanonicalName();
+        }
+        if (types.length > 0) {
+            decl = decl.substring(1);
+        }
+        decl = "(" + decl + ")";
+        return decl;
     }
 }

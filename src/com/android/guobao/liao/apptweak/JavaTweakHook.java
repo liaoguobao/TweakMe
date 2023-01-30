@@ -42,6 +42,7 @@ public abstract class JavaTweakHook {
     protected void afterHookedMethod(Object thiz, Object[] args) {
     }
 
+    synchronized //此函数必须要同步执行，因为很有可能会在多线程中被频繁调用
     protected final Object handleHookedMethod(Object thiz, Object[] args) throws Throwable {
         result_ = null;
         except_ = null;
@@ -86,11 +87,11 @@ public abstract class JavaTweakHook {
         log += String.format("\t_this_ = %s->%s\r\n", m.getDeclaringClass().getName(), thiz);
         for (int i = 0; i < args.length; i++) {
             String byteArr = ((args[i] instanceof byte[]) ? StringUtil.hexToVisible(((byte[]) args[i]).length > maxlen ? Arrays.copyOf((byte[]) args[i], maxlen) : (byte[]) args[i]) : null);
-            String objArr = ((args[i] instanceof Object[]) ? Arrays.deepToString((Object[]) args[i]) : null);
+            String objArr = ((args[i] instanceof Object[]) ? Arrays.asList((Object[]) args[i]).toString() : null);
             log += String.format("\tparam%d = %s->%s\r\n", i + 1, types[i].getName(), byteArr != null ? byteArr : (objArr != null ? objArr : args[i]));
         }
         String byteArr = ((hr instanceof byte[]) ? StringUtil.hexToVisible(((byte[]) hr).length > maxlen ? Arrays.copyOf((byte[]) hr, maxlen) : (byte[]) hr) : null);
-        String objArr = ((hr instanceof Object[]) ? Arrays.deepToString((Object[]) hr) : null);
+        String objArr = ((hr instanceof Object[]) ? Arrays.asList((Object[]) hr).toString() : null);
 
         log += String.format("\treturn = %s->%s\r\n}\r\n", type.getName(), byteArr != null ? byteArr : (objArr != null ? objArr : hr));
         return log;
@@ -122,5 +123,14 @@ public abstract class JavaTweakHook {
         result_ = null;
         except_ = except;
         return_ = true;
+    }
+
+    public static JavaTweakHook nameLogHook(String name) {
+        return new JavaTweakHook(name) {
+        };
+    }
+
+    public static JavaTweakHook onlyLogHook() {
+        return nameLogHook(null);
     }
 }

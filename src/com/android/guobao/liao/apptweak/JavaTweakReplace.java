@@ -33,4 +33,16 @@ public abstract class JavaTweakReplace extends JavaTweakHook {
     }
 
     protected abstract Object replaceHookedMethod(Object thiz, Object[] args);
+
+    public static JavaTweakReplace constReturnReplace(final Object result) {
+        return new JavaTweakReplace() {
+            protected Object replaceHookedMethod(Object thiz, Object[] args) {
+                return result;
+            }
+        };
+    }
+
+    public static JavaTweakReplace nullReturnReplace() {
+        return constReturnReplace(null);
+    }
 }

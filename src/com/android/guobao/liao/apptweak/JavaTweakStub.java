@@ -7,12 +7,11 @@ import android.util.Log;
 public class JavaTweakStub {
     private static volatile int usedStub = 0;
 
-    private static synchronized Method getStubMethod() {
+    private static Method getStubMethod() {
         try {
             Method m = JavaTweakStub.class.getDeclaredMethod(String.format("stub%02d", usedStub++));
             return m;
         } catch (Throwable e) {
-            JavaTweakBridge.writeToLogcat(Log.ERROR, "getStubMethod: usedStub<%d>, error<%s>.", usedStub, e);
             return null;
         }
     }

@@ -40,14 +40,14 @@ public class JavaTweak_proxy extends JavaTweakPlugin {
                 args[1] = tms;
             }
         });
-        /*JavaTweakBridge.hookJavaMethod(URL.class, "openConnection()", new JavaTweakHook(true) {
+        JavaTweakBridge.hookJavaMethod(URL.class, "openConnection()", new JavaTweakHook(true) {
             protected void beforeHookedMethod(Object thiz, Object[] args) {
                 JavaTweakBridge.writeToLogcat(Log.INFO, "proxy: url: %s", thiz);
                 if (JavaTweak_ProxyHelper.proxyIsOk()) {
                     setResult(ReflectUtil.callObjectMethod(thiz, "openConnection(java.net.Proxy)", JavaTweak_ProxyHelper.newProxy()));
                 }
             }
-        });*/
+        });
     }
 
     protected void defineJavaClass(Class<?> clazz) {
@@ -73,7 +73,7 @@ public class JavaTweak_proxy extends JavaTweakPlugin {
 
 @SuppressWarnings({ "unchecked" })
 class JavaTweak_ProxyHelper {
-    static private String proxyhost = "10.108.3.195|192.168.1.108"; //多个ip地址用|隔开
+    static private String proxyhost = "10.108.3.171|192.168.1.108"; //多个ip地址用|隔开
     static private int proxyport = 8888;
     static private int proxyok = -1;
 
