@@ -45,7 +45,7 @@ import com.android.guobao.liao.apptweak.xposed.IXposedHookLoadPackage;
 import com.android.guobao.liao.apptweak.xposed.XC_MethodHook;
 import com.android.guobao.liao.apptweak.xposed.XC_MethodReplacement;
 import com.android.guobao.liao.apptweak.xposed.XposedHelpers;
-//import com.android.guobao.liao.apptweak.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
+import com.android.guobao.liao.apptweak.xposed.XC_LoadPackage.LoadPackageParam;
 
 import static com.android.guobao.liao.apptweak.xposed.XC_MethodReplacement.DO_NOTHING;
 import static com.android.guobao.liao.apptweak.xposed.XposedHelpers.callMethod;

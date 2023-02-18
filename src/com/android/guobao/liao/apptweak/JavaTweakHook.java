@@ -2,7 +2,6 @@ package com.android.guobao.liao.apptweak;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import android.util.Log;
 
 import com.android.guobao.liao.apptweak.util.*;
@@ -79,21 +78,15 @@ public abstract class JavaTweakHook {
     }
 
     private String paramsToString(String name, Method m, Object hr, Object thiz, Object[] args) {
-        final int maxlen = 4096;
         Class<?> type = m.getReturnType();
         Class<?>[] types = m.getParameterTypes();
 
         String log = String.format("%s::%s%s->{\r\n", m.getDeclaringClass().getName(), m.getName(), !name.equals("") && !m.getName().equals(name) ? "@" + name : "");
         log += String.format("\t_this_ = %s->%s\r\n", m.getDeclaringClass().getName(), thiz);
         for (int i = 0; i < args.length; i++) {
-            String byteArr = ((args[i] instanceof byte[]) ? StringUtil.hexToVisible(((byte[]) args[i]).length > maxlen ? Arrays.copyOf((byte[]) args[i], maxlen) : (byte[]) args[i]) : null);
-            String objArr = ((args[i] instanceof Object[]) ? Arrays.asList((Object[]) args[i]).toString() : null);
-            log += String.format("\tparam%d = %s->%s\r\n", i + 1, types[i].getName(), byteArr != null ? byteArr : (objArr != null ? objArr : args[i]));
+            log += String.format("\tparam%d = %s->%s\r\n", i + 1, types[i].getName(), ReflectUtil.peekValue(args[i]));
         }
-        String byteArr = ((hr instanceof byte[]) ? StringUtil.hexToVisible(((byte[]) hr).length > maxlen ? Arrays.copyOf((byte[]) hr, maxlen) : (byte[]) hr) : null);
-        String objArr = ((hr instanceof Object[]) ? Arrays.asList((Object[]) hr).toString() : null);
-
-        log += String.format("\treturn = %s->%s\r\n}\r\n", type.getName(), byteArr != null ? byteArr : (objArr != null ? objArr : hr));
+        log += String.format("\treturn = %s->%s\r\n}\r\n", type.getName(), ReflectUtil.peekValue(hr));
         return log;
     }
 

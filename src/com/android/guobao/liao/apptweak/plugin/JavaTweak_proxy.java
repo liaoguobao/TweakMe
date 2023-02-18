@@ -42,10 +42,15 @@ public class JavaTweak_proxy extends JavaTweakPlugin {
         });
         JavaTweakBridge.hookJavaMethod(URL.class, "openConnection()", new JavaTweakHook(true) {
             protected void beforeHookedMethod(Object thiz, Object[] args) {
-                JavaTweakBridge.writeToLogcat(Log.INFO, "proxy: url: %s", thiz);
-                if (JavaTweak_ProxyHelper.proxyIsOk()) {
-                    setResult(ReflectUtil.callObjectMethod(thiz, "openConnection(java.net.Proxy)", JavaTweak_ProxyHelper.newProxy()));
+                String host = ((URL) thiz).getHost();
+                if (host == null || host.equals("127.0.0.1") || host.equals("localhost")) {
+                    return;
                 }
+                JavaTweakBridge.writeToLogcat(Log.INFO, "proxy: url: %s", thiz);
+                if (!JavaTweak_ProxyHelper.proxyIsOk()) {
+                    return;
+                }
+                setResult(ReflectUtil.callObjectMethod(thiz, "openConnection(java.net.Proxy)", JavaTweak_ProxyHelper.newProxy()));
             }
         });
     }

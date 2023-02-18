@@ -8,6 +8,7 @@ import com.android.guobao.liao.apptweak.JavaTweakPlugin;
 import com.android.guobao.liao.apptweak.util.ReflectUtil;
 import com.android.guobao.liao.apptweak.util.TweakUtil;
 import com.android.guobao.liao.apptweak.xposed.IXposedHookLoadPackage;
+import com.android.guobao.liao.apptweak.xposed.XC_LoadPackage.LoadPackageParam;
 
 public class JavaTweak_xposed extends JavaTweakPlugin {
     private boolean handled_;
@@ -40,7 +41,7 @@ public class JavaTweak_xposed extends JavaTweakPlugin {
             return;
         }
         handled_ = true;
-        IXposedHookLoadPackage.LoadPackageParam lpp = new IXposedHookLoadPackage.LoadPackageParam();
+        LoadPackageParam lpp = new LoadPackageParam();
 
         lpp.isFirstApplication = false;
         lpp.packageName = TweakUtil.currentPackageName();

@@ -52,6 +52,10 @@ public final class XposedHelpers {
         return ReflectUtil.classForName(classLoader, className);
     }
 
+    public static Class<?> findClassIfExists(String className, ClassLoader classLoader) {
+        return ReflectUtil.classForName(classLoader, className);
+    }
+
     public static Object newInstance(Class<?> clazz, Class<?>[] parameterTypes, Object... args) {
         return ReflectUtil.newClassInstance(clazz, ReflectUtil.getParamTypesDeclare(parameterTypes), args);
     }

@@ -5,6 +5,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 public class ReflectUtil {
     static public Class<?> classForName(ClassLoader loader, String name, boolean initialize) {
@@ -209,7 +210,7 @@ public class ReflectUtil {
 
         Field[] fs = clazz.getDeclaredFields();
         for (int i = 0; i < fs.length; i++) {
-            str += String.format("\to%02d: %s = %s\r\n", i, fs[i].getName(), getObjectField(o, fs[i].getName()));
+            str += String.format("\to%02d: %s = %s\r\n", i, fs[i].getName(), peekValue(getObjectField(o, fs[i].getName())));
         }
         str += "}\r\n";
         return str;
@@ -217,6 +218,13 @@ public class ReflectUtil {
 
     static public String peekObject(Object o) {
         return peekObject(o, null);
+    }
+
+    static public String peekValue(Object o) {
+        String byteArr = (byte[].class.isInstance(o) ? StringUtil.hexToVisible(((byte[]) o).length > 4096 ? Arrays.copyOf((byte[]) o, 4096) : (byte[]) o) : null);
+        String objArr = (Object[].class.isInstance(o) ? Arrays.asList((Object[]) o).toString() : null);
+        String value = String.format("%s", byteArr != null ? byteArr : (objArr != null ? objArr : o));
+        return value;
     }
 
     static public String peekClass(Class<?> clazz) {

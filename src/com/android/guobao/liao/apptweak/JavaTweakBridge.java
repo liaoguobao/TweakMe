@@ -101,7 +101,7 @@ public class JavaTweakBridge {
     static public boolean hookAllJavaMethods(Class<?> hook_class, String method_name, JavaTweakHook hook_data) {
         Method[] ms = hook_class.getDeclaredMethods();
         for (int i = 0; i < ms.length; i++) {
-            if (ms[i].getName().equals(method_name)) {
+            if (method_name.equals("") || ms[i].getName().equals(method_name)) {
                 hookJavaMember(ms[i], hook_data);
             }
         }
@@ -110,6 +110,16 @@ public class JavaTweakBridge {
 
     static public boolean hookAllJavaMethods(Class<?> hook_class, String method_name) {
         return hookAllJavaMethods(hook_class, method_name, null);
+    }
+
+    static public boolean hookJavaClass(Class<?> hook_class, JavaTweakHook hook_data) {
+        hookAllJavaMethods(hook_class, "", hook_data);
+        hookAllJavaConstructors(hook_class, hook_data);
+        return true;
+    }
+
+    static public boolean hookJavaClass(Class<?> hook_class) {
+        return hookJavaClass(hook_class, null);
     }
 
     static public boolean hookAllJavaConstructors(Class<?> hook_class, JavaTweakHook hook_data) {
