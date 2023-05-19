@@ -12,6 +12,7 @@ public class JavaTweakBridge {
     static public final int PLUGIN_FLAG_DISABLE_OPENAT = 0x00000001;
     static public final int PLUGIN_FLAG_DISABLE_SYSCALL = 0x00000002;
     static public final int PLUGIN_FLAG_DISABLE_THREAD = 0x00000004;
+    static public final int PLUGIN_FLAG_UNDIRECT_APK = 0x00000008;
     static public final int PLUGIN_FLAG_CAN_HOOK_CHAIN = 0x00010000;
 
     static private/*final*/int pluginFlags = 0;
@@ -180,7 +181,11 @@ public class JavaTweakBridge {
     }
 
     static public boolean hookJavaMethod(ClassLoader hook_loader, String hook_class, String hook_method) {
-        return hookJavaMethod(hook_loader, hook_class, hook_method, null);
+        return hookJavaMethod(hook_loader, hook_class, hook_method, (JavaTweakHook) null);
+    }
+
+    static public boolean hookJavaMethod(ClassLoader hook_loader, String hook_class, String hook_method, String friendly_method_name_for_log) {
+        return hookJavaMethod(ReflectUtil.classForName(hook_loader, hook_class), hook_method, friendly_method_name_for_log);
     }
 
     static public boolean hookJavaMethod(Class<?> hook_class, String hook_method, String friendly_method_name_for_log) {
