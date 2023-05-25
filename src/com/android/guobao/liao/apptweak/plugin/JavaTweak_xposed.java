@@ -21,7 +21,7 @@ public class JavaTweak_xposed extends JavaTweakPlugin {
 
     protected void loadDexFile(String dex) {
         //开启hook链，因为多个xposed模块同时启用时可能有些方法会被多次hook
-        JavaTweakBridge.setPluginFlags(JavaTweakBridge.getPluginFlags() | JavaTweakBridge.PLUGIN_FLAG_CAN_HOOK_CHAIN);
+        //JavaTweakBridge.setPluginFlags(JavaTweakBridge.getPluginFlags() | JavaTweakBridge.PLUGIN_FLAG_CAN_HOOK_CHAIN);
 
         JavaTweakBridge.hookJavaMethod(ReflectUtil.classForName("android.app.ContextImpl"), "createActivityContext", new JavaTweakHook(true) {
             protected void afterHookedMethod(Object thiz, Object[] args) {

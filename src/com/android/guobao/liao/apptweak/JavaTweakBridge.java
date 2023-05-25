@@ -15,7 +15,7 @@ public class JavaTweakBridge {
     static public final int PLUGIN_FLAG_UNDIRECT_APK = 0x00000008;
     static public final int PLUGIN_FLAG_CAN_HOOK_CHAIN = 0x00010000;
 
-    static private/*final*/int pluginFlags = 0;
+    static private/*final*/int pluginFlags = PLUGIN_FLAG_DISABLE_SYSCALL;
     static private final ConcurrentHashMap<String, JavaTweakHook> backupMethods = new ConcurrentHashMap<String, JavaTweakHook>();
 
     /*

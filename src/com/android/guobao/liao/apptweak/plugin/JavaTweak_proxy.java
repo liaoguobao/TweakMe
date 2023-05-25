@@ -22,6 +22,7 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 import android.util.Log;
 
@@ -35,9 +36,20 @@ public class JavaTweak_proxy extends JavaTweakPlugin {
         JavaTweak_ProxyHelper.proxyIsOk();
         JavaTweakBridge.hookJavaMethod(SSLContext.class, "init", new JavaTweakHook(true) {
             protected void beforeHookedMethod(Object thiz, Object[] args) {
-                Object[] tms = new TrustManager[] { new JavaTweak_X509TrustManager() };
-                JavaTweakBridge.writeToLogcat(Log.INFO, "proxy: init: %s--->%s", args[1] == null ? null : ((Object[]) args[1])[0], tms[0]);
-                args[1] = tms;
+                Object[] tm_org = (Object[]) args[1];
+                Object[] tm_new = new TrustManager[] { new JavaTweak_X509TrustManager() };
+
+                JavaTweakBridge.writeToLogcat(Log.INFO, "proxy: init: %s--->%s", tm_org == null ? null : tm_org[0], tm_new[0]);
+                args[1] = tm_new;
+            }
+        });
+        JavaTweakBridge.hookJavaMethod(TrustManagerFactory.class, "getTrustManagers()", new JavaTweakHook(true) {
+            protected void afterHookedMethod(Object thiz, Object[] args) {
+                Object[] tm_org = (Object[]) getResult();
+                Object[] tm_new = new TrustManager[] { new JavaTweak_X509TrustManager() };
+
+                JavaTweakBridge.writeToLogcat(Log.INFO, "proxy: manager: %s--->%s", tm_org == null ? null : tm_org[0], tm_new[0]);
+                setResult(tm_new);
             }
         });
         JavaTweakBridge.hookJavaMethod(URL.class, "openConnection()", new JavaTweakHook(true) {
