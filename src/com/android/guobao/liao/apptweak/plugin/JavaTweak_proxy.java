@@ -54,14 +54,13 @@ public class JavaTweak_proxy extends JavaTweakPlugin {
         });
         JavaTweakBridge.hookJavaMethod(URL.class, "openConnection()", new JavaTweakHook(true) {
             protected void beforeHookedMethod(Object thiz, Object[] args) {
-                String host = ((URL) thiz).getHost();
-                if (host == null || host.equals("127.0.0.1") || host.equals("localhost")) {
+                if (!JavaTweak_ProxyHelper.proxyIsNeed(thiz, "SimpleHttpClient")) {
                     return;
                 }
-                JavaTweakBridge.writeToLogcat(Log.INFO, "proxy: url: %s", thiz);
                 if (!JavaTweak_ProxyHelper.proxyIsOk()) {
                     return;
                 }
+                JavaTweakBridge.writeToLogcat(Log.INFO, "proxy: url: %s", thiz);
                 setResult(ReflectUtil.callObjectMethod(thiz, "openConnection(java.net.Proxy)", JavaTweak_ProxyHelper.newProxy()));
             }
         });
@@ -73,7 +72,7 @@ public class JavaTweak_proxy extends JavaTweakPlugin {
             JavaTweakBridge.hookJavaMethod(clazz.getClassLoader(), "okhttp3.internal.http.RetryAndFollowUpInterceptor", "(okhttp3.Interceptor$Chain)okhttp3.Response", new JavaTweakHook(true) {
                 protected void beforeHookedMethod(Object thiz, Object[] args) {
                     //JavaTweakBridge.writeToLogcat(Log.INFO, Log.getStackTraceString(new Throwable()));
-                    JavaTweak_ProxyHelper.modifyOkHttpClient(thiz);
+                    JavaTweak_ProxyHelper.modifyOkHttpClient(thiz, ReflectUtil.getObjectField(args[0], "okhttp3.Request"));
                 }
             });
         }
@@ -127,9 +126,14 @@ class JavaTweak_ProxyHelper {
         }
     }
 
-    static public Object modifyOkHttpClient(Object thiz) {
+    static public Object modifyOkHttpClient(Object thiz, Object request) {
         Object client = ReflectUtil.getObjectField(thiz, "okhttp3.OkHttpClient");
-
+        if (!proxyIsNeed(request, "OkHttpClient")) {
+            return thiz;
+        }
+        if (!proxyIsOk()) {
+            return thiz;
+        }
         setHttpClientProxy(client, "OkHttpClient");
         modifySSLSocketFactory(client, "OkHttpClient");
 
@@ -140,9 +144,37 @@ class JavaTweak_ProxyHelper {
     }
 
     static public Object modifyApacheHttpClient(Object thiz, Object request) {
+        if (!proxyIsNeed(request, "ApacheHttpClient")) {
+            return thiz;
+        }
+        if (!proxyIsOk()) {
+            return thiz;
+        }
         setHttpClientProxy(request, "ApacheHttpClient");
         modifySSLSocketFactory(thiz, "ApacheHttpClient");
         return thiz;
+    }
+
+    static public boolean proxyIsNeed(Object request, String hctype) {
+        Object requrl = null;
+        if (hctype.equals("OkHttpClient")) {
+            requrl = ReflectUtil.getObjectField(request, "okhttp3.HttpUrl");
+        } else if (hctype.equals("ApacheHttpClient")) {
+            requrl = ReflectUtil.getObjectField(request, "java.net.URI");
+        } else if (hctype.equals("SimpleHttpClient")) {
+            requrl = request;
+        }
+        if (requrl == null) {
+            return false;
+        }
+        String s = requrl.toString();
+        if (!s.contains("https://") && !s.contains("http://")) {
+            return false; //不是http和https请求不设置代理
+        }
+        if (s.contains("://127.0.0.1") || s.contains("://localhost")) {
+            return false; //本地请求不设置代理
+        }
+        return true;
     }
 
     static public boolean proxyIsOk() {
@@ -184,9 +216,6 @@ class JavaTweak_ProxyHelper {
     }
 
     static public void setHttpClientProxy(Object client, String hctype) {
-        if (!proxyIsOk()) {
-            return;
-        }
         if (hctype.equals("ApacheHttpClient")) {
             Object params = ReflectUtil.callObjectMethod(client, "getParams");
             URI uri = (URI) ReflectUtil.callObjectMethod(client, "getURI");
@@ -259,6 +288,11 @@ class JavaTweak_X509TrustManager implements X509TrustManager {
     @Override
     public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
         JavaTweakBridge.writeToLogcat(Log.INFO, "proxy: checkServerTrusted: %s: %s", chain[0].getIssuerDN(), authType);
+    }
+
+    public List<X509Certificate> checkServerTrusted(X509Certificate[] chain, String authType, String host) throws CertificateException {
+        JavaTweakBridge.writeToLogcat(Log.INFO, "proxy: checkServerTrusted: %s: %s: %s", chain[0].getIssuerDN(), authType, host);
+        return new ArrayList<X509Certificate>();
     }
 
     @Override
