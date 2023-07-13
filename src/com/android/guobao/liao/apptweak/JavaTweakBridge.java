@@ -13,6 +13,7 @@ public class JavaTweakBridge {
     static public final int PLUGIN_FLAG_DISABLE_SYSCALL = 0x00000002;
     static public final int PLUGIN_FLAG_DISABLE_THREAD = 0x00000004;
     static public final int PLUGIN_FLAG_UNDIRECT_APK = 0x00000008;
+    static public final int PLUGIN_FLAG_DISABLE_JIAGU = 0x00000010;
     static public final int PLUGIN_FLAG_CAN_HOOK_CHAIN = 0x00010000;
 
     static private/*final*/int pluginFlags = PLUGIN_FLAG_DISABLE_SYSCALL;
